@@ -93,7 +93,7 @@ window.DocumentosAEB.gerarContratoBase = function(dados) {
               { text: '_____________________________________\nPai ou Responsável\n\nNOME: ' + (!dados.isMaior ? dados.nomeResp : '') + '\nRG/CIN: ' + (!dados.isMaior ? dados.rgResp : ''), alignment: 'center' }
             ]
           },
-          { text: '_____________________________________\nAssociação dos Estudantes de Batatais', alignment: 'center', margin: [0, 30, 0, 0] }
+          { text: '_____________________________________\nAssociação dos Estudantes de Batatais', alignment: 'center', margin: [0, 80, 0, 0] }
         ]
       }
     ],
