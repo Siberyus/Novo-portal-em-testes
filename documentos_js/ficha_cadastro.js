@@ -79,8 +79,6 @@ window.DocumentosAEB.gerarFichaCadastro = function(dados) {
             ]
           },
           { text: '_____________________________________\nAssociação dos Estudantes de Batatais', style: 'assinatura', margin: [0, 80, 0, 0] }
-            ]
-          }
         ]
       }
     ],
