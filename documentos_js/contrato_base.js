@@ -1,0 +1,102 @@
+// Garante que a "gaveta" principal existe
+window.DocumentosAEB = window.DocumentosAEB || {};
+
+// Adiciona o Contrato-Base
+window.DocumentosAEB.gerarContratoBase = function(dados) {
+  return {
+    content: [
+      { text: 'CONTRATO-BASE DE ADESÃO À ASSOCIAÇÃO DOS ESTUDANTES DE BATATAIS (AEB) – CONDIÇÃO DE ASSOCIADO(A) E BENEFÍCIOS INSTITUCIONAIS', style: 'header', alignment: 'center', bold: true, margin: [0, 0, 0, 5] },
+      { text: '(O transporte estudantil e suas regras operacionais e financeiras serão disciplinados em Aditivo Contratual específico, nos termos do Estatuto da AEB.)', alignment: 'center', fontSize: 9, margin: [0, 0, 0, 15] },
+      
+      { text: 'Pelo presente instrumento particular de CONTRATO-BASE DE ADESÃO À ASSOCIAÇÃO, a ASSOCIAÇÃO DOS ESTUDANTES DE BATATAIS – AEB, inscrita no CNPJ sob nº 66.994.187/0001-02, Inscrição Municipal nº 03 00 0011 0004, estabelecida na Rua Barão de Cotegipe, nº 564, Bairro Centro, CEP 14300-087, Batatais, Estado de São Paulo, neste ato devidamente representada por sua Diretoria, doravante denominada simplesmente AEB, e, de outro lado, o(a) estudante Associado(a) ou seu(ua) pai/mãe/responsável legal, no final qualificado(a), doravante denominado(a) ASSOCIADO(A), têm entre si justo e contratado o presente instrumento, que estabelece as condições de adesão à Associação, direitos e deveres gerais do(a) Associado(a) e acesso aos benefícios institucionais, tudo em conformidade com o Estatuto da AEB.', alignment: 'justify', margin: [0, 0, 0, 15] },
+
+      { text: [{ text: 'CLÁUSULA 1ª', bold: true }, ' – A AEB é associação civil sem fins lucrativos, regida por seu Estatuto, com objetivos institucionais voltados à congregação estudantil, defesa dos interesses de seus Associados(as) e promoção de benefícios institucionais por meio de atividades e parcerias. Nos termos do Estatuto, a Associação também organiza e administra o transporte estudantil de seus Associados(as), atividade principal da Associação, porém facultativa ao(à) associado(a), e que será regulada por contrato e/ou aditivo próprio, não se confundindo com a condição de Associado(a).'], alignment: 'justify', margin: [0, 0, 0, 5] },
+      { text: [{ text: 'Parágrafo único:', bold: true }, ' Para fins deste contrato-base, considera-se associado(a) o(a) estudante admitido(a) na forma do Estatuto, mediante cadastramento/recadastramento e comprovação de vínculo com instituição de ensino. A eventual utilização do transporte estudantil, embora se trate de atividade principal da Associação, dependerá de adesão específica ao respectivo instrumento (contrato/aditivo), com regras operacionais e obrigações financeiras próprias, observadas as disposições estatutárias e contratuais aplicáveis.'], alignment: 'justify', margin: [0, 0, 0, 10] },
+
+      { text: [{ text: 'CLÁUSULA 2ª', bold: true }, ' – O objeto do presente contrato-base é regular a adesão do(a) ASSOCIADO(A) à AEB, estabelecendo direitos e deveres gerais decorrentes da condição de Associado(a), bem como o acesso aos benefícios institucionais previstos no Estatuto e em parcerias eventualmente firmadas pela Associação.\n',
+        { text: '§1º', bold: true }, ' – Para manutenção da condição de Associado(a) no exercício seguinte, será obrigatório o recadastramento, a ser realizado nos prazos, condições e procedimentos divulgados pela AEB por seus canais oficiais, especialmente no início de cada ano.\n',
+        { text: '§2º', bold: true }, ' – Excepcionalmente, a condição de Associado(a) e os respectivos direitos e benefícios serão mantidos de forma provisória, exclusivamente até a conclusão do recadastramento ou encerramento do prazo estabelecido divulgado pela AEB, o que ocorrer primeiro.\n',
+        { text: '§3º', bold: true }, ' – A não realização do recadastramento dentro do período estabelecido implicará na perda da condição de Associado(a) ao final do referido prazo, sem prejuízo da quitação de eventuais obrigações pendentes.'
+      ], alignment: 'justify', margin: [0, 0, 0, 10] },
+
+      { text: [{ text: 'CLÁUSULA 3ª – VIGÊNCIA E RECADASTRAMENTO:', bold: true }, ' O presente contrato base terá vigência limitada ao ano civil de sua assinatura, encerrando-se em 31 de dezembro do respectivo ano.\n',
+        { text: '§1º', bold: true }, ' – O recadastramento constitui condição indispensável para continuidade do vínculo associativo e eventual acesso a serviços específicos, incluindo o transporte estudantil, quando aplicável.\n',
+        { text: '§2º', bold: true }, ' – Os instrumentos acessórios eventualmente firmados pelo(a) Associado(a), incluindo aditivos relativos a serviços específicos, poderão possuir vigência própria e condições específicas, não se confundindo com a vigência do presente contrato base, permanecendo válidos nos termos neles estabelecidos, desde que mantida a condição de Associado(a), observado o disposto nesta cláusula quanto ao recadastramento.'
+      ], alignment: 'justify', margin: [0, 0, 0, 10] },
+
+      { text: [{ text: 'CLÁUSULA 4ª – CONTRIBUIÇÃO ASSOCIATIVA E DESCONTO POR PONTUALIDADE:', bold: true }, ' O(a) ASSOCIADO(A) contribuirá com a taxa associativa mensal no valor de R$ 60,00 (sessenta reais), destinada à manutenção das atividades administrativas e institucionais da Associação, nos termos do Estatuto.\n',
+        { text: '§1º', bold: true }, ' – Será concedido desconto por pontualidade no valor de R$10,00 (dez reais), aplicável exclusivamente aos pagamentos realizados até a data de vencimento, reduzindo o valor devido para R$50,00 (cinquenta reais).\n',
+        { text: '§2º', bold: true }, ' – O desconto por pontualidade possui caráter de incentivo à adimplência e é cumulativo com o desconto por parentesco (irmãos), podendo ambos incidir sobre a mesma mensalidade quando atingidos os requisitos mínimos regulados em aditivo próprio; contudo, o desconto por pontualidade não se aplica aos pagamentos realizados após o vencimento.\n',
+        { text: '§3º', bold: true }, ' – O não pagamento até a data de vencimento implica na perda automática do desconto por pontualidade, permanecendo devido o valor integral da contribuição associativa, sem prejuízo dos encargos eventualmente aplicáveis nos termos do Estatuto e deste contrato.\n',
+        { text: '§4º', bold: true }, ' – Os valores das contribuições associativas poderão ser revistos periodicamente pela AEB, mediante deliberação da Diretoria, observados os critérios e limites estabelecidos no Estatuto.\n',
+        { text: '§5º', bold: true }, ' – Durante a vigência de aditivo de transporte firmado pelo(a) Associado(a), a contribuição associativa prevista nesta cláusula fica absorvida pelo valor do transporte, não sendo cobrada de forma cumulativa.\n',
+        { text: '§6º', bold: true }, ' – O associado declara ciência de que a contribuição associativa pode conter parcela destinada ao custeio de bolsas dos membros da administração, nos termos do art. 54 do Estatuto, cujo valor é apurado e publicado anualmente.'
+      ], alignment: 'justify', margin: [0, 0, 0, 10] },
+
+      { text: [{ text: 'CLÁUSULA 5ª – REGIME DISCIPLINAR, INADIMPLÊNCIA E MEDIDAS CABÍVEIS (APLICÁVEL AO ASSOCIADO(A) E AOS ADITIVOS):', bold: true }, ' O(a) ASSOCIADO(A) se sujeita às regras de inadimplência, penalidades, medidas administrativas e procedimentos previstos no Estatuto da AEB (incluindo, quando cabíveis, advertência, multa, suspensão e exclusão), as quais se aplicam ao Associado(a) em geral e, no que couber, à execução de quaisquer instrumentos específicos (contratos/aditivos), inclusive o de transporte.\n',
+        { text: '§1º', bold: true }, ' – Em caso de atraso no pagamento de quaisquer valores devidos pelo(a) ASSOCIADO(A), nos termos do instrumento pertinente (contrato-base e/ou aditivo específico), incidirão os seguintes encargos moratórios, sem prejuízo de outras medidas cabíveis e observados os limites legais aplicáveis: I – multa moratória fixa de 2% (dois por cento) sobre o valor principal, incidente a partir do dia posterior ao do vencimento; e II – juros de mora de 1% (um por cento) sobre o valor principal, por mês, contados a partir do dia posterior ao do vencimento.\n',
+        { text: '§2º', bold: true }, ' – O inadimplemento de obrigações assumidas pelo(a) Associado(a), seja no âmbito associativo seja em serviços específicos, poderá ensejar medidas administrativas e/ou disciplinares previstas no Estatuto, observado o contraditório e a ampla defesa quando cabíveis.\n',
+        { text: '§3º', bold: true }, ' – A aplicação de penalidades (advertência, multa, suspensão e exclusão), bem como hipóteses, competência e recursos, observarão as disposições do Estatuto.\n',
+        { text: '§4º', bold: true }, ' – Medidas de cobrança extrajudicial e/ou judicial, quando necessárias, serão adotadas em conformidade com a legislação aplicável e com os instrumentos firmados, respeitados os direitos do(a) Associado(a).\n',
+        { text: '§5º', bold: true }, ' – Quando houver previsão expressa no instrumento pertinente, o(a) ASSOCIADO(A) poderá autorizar que, em caso de inadimplemento, a AEB proceda à inscrição do seu nome junto a cadastros de proteção ao crédito e/ou a protesto, nos termos da legislação aplicável.'
+      ], alignment: 'justify', margin: [0, 0, 0, 10] },
+
+      { text: [{ text: 'CLÁUSULA 5.1ª', bold: true }, ' – Caso a Associação institua, de forma excepcional, temporária e justificada, a Taxa de Rateio de Inadimplência (TRI), sua aplicação observará estritamente o Estatuto e constará de instrumento próprio relativo ao serviço a que se vincular, com fiscalização do Conselho Fiscal e transparência na prestação de contas.\n',
+        { text: '§1º', bold: true }, ' – A TRI terá destinação exclusiva ao custeio de obrigações financeiras vinculadas ao serviço a que se referir, não se confundindo com penalidade, multa ou taxa de administração, conforme Estatuto.\n',
+        { text: '§2º', bold: true }, ' – A TRI será aplicada apenas aos Associados(as) adimplentes, mediante critérios objetivos definidos pela Diretoria, com fiscalização do Conselho Fiscal, na forma do Estatuto.\n',
+        { text: '§3º', bold: true }, ' – A cobrança da TRI terá prazo determinado e deverá ser encerrada tão logo cesse a situação de inadimplência que lhe deu causa, conforme Estatuto.\n',
+        { text: '§4º', bold: true }, ' – A instituição, os valores arrecadados e a destinação da TRI deverão constar expressamente na prestação de contas anual submetida à Assembleia Geral, conforme Estatuto.\n',
+        { text: '§5º', bold: true }, ' – As regras operacionais e financeiras detalhadas da TRI, quando vinculadas ao transporte estudantil, constarão do respectivo aditivo de transporte.'
+      ], alignment: 'justify', margin: [0, 0, 0, 10] },
+
+      { text: [{ text: 'CLÁUSULA 6ª – DIREITOS E DEVERES DO(A) ASSOCIADO(A):', bold: true }, ' O(a) ASSOCIADO(A) compromete-se a respeitar as leis cíveis e penais, bem como a cumprir os direitos e deveres previstos no Estatuto e regulamentos internos da AEB. Quando aderir a serviços específicos (como transporte), o(a) Associado(a) também deverá observar as regras e condições do respectivo instrumento, inclusive normas de segurança aplicáveis.\n',
+        { text: 'Parágrafo único', bold: true }, ' – Os direitos e deveres do(a) Associado(a) estão previstos no Estatuto da Associação dos Estudantes de Batatais. O(a) associado (a) declara ter recebido cópia ou acesso ao Estatuto por meio de QR code, disponível também na sede e nos canais oficiais da AEB, dando-se por ciente de seu conteúdo.'
+      ], alignment: 'justify', margin: [0, 0, 0, 10] },
+
+      { text: [{ text: 'CLÁUSULA 7ª – DESLIGAMENTO/RESCISÃO:', bold: true }, ' O(a) ASSOCIADO(A) poderá solicitar sua desvinculação da AEB mediante aviso prévio mínimo de 15 (quinze) dias, por requerimento formal, observadas as condições estatutárias e a quitação de eventuais obrigações financeiras anteriormente assumidas. O não cumprimento do prazo de aviso prévio poderá implicar na cobrança das mensalidades correspondentes ao período necessário para sua efetivação, em razão dos procedimentos administrativos, operacionais e compromissos previamente assumidos pela Associação limitada ao período correspondente ao aviso prévio não observado, vedada a cobrança cumulativa ou desproporcional. A rescisão de aditivos específicos (como o de transporte) seguirá as condições previstas no respectivo instrumento, sem prejuízo das obrigações vencidas ou vincendas.\n',
+        { text: 'Parágrafo único', bold: true }, ' – A desvinculação da Associação implica na perda da condição de Associado(a) e na cessação dos direitos e benefícios institucionais previstos no Estatuto. A rescisão de aditivos específicos implicará apenas na perda dos direitos e serviços a eles vinculados, permanecendo inalterados os demais direitos decorrentes da condição de Associado(a), conforme Estatuto.'
+      ], alignment: 'justify', margin: [0, 0, 0, 10] },
+
+      { text: [{ text: 'CLÁUSULA 8ª – IDENTIFICAÇÃO DO(A) ASSOCIADO(A):', bold: true }, ' A Carteira de Identificação emitida pela AEB é documento indispensável para a comprovação de vínculo do(a) Associado(a), sendo necessária para a utilização dos benefícios associativos, e de inteira responsabilidade do(a) ASSOCIADO(A), sendo nominal e intransferível.\n',
+        { text: '§1º', bold: true }, ' – Em caso de perda ou extravio, o(a) ASSOCIADO(A) deverá comunicar tal fato imediatamente à AEB, sendo cobrada taxa de R$ 5,00 (cinco reais) para a confecção de 2ª via da carteira de identificação.\n',
+        { text: '§2º', bold: true }, ' – Regras específicas de identificação para utilização do transporte estudantil (inclusive exigência de apresentação no embarque) constarão do aditivo de transporte, quando aplicável.'
+      ], alignment: 'justify', margin: [0, 0, 0, 10] },
+
+      { text: [{ text: 'CLÁUSULA 9ª – PENALIDADES E MEDIDAS ADMINISTRATIVAS:', bold: true }, ' O(a) ASSOCIADO(A) se sujeita às penalidades e aos procedimentos de apuração previstos no Estatuto da AEB. Medidas administrativas operacionais relativas a serviços específicos (como transporte) constarão do respectivo instrumento, respeitado o Estatuto.\n',
+        { text: 'Parágrafo único', bold: true }, ' – Na hipótese de adesão ao transporte estudantil, as regras operacionais (incluindo medidas administrativas como suspensão temporária de embarque, retirada/alteração de ponto e exclusão de grupos oficiais de comunicação) observarão o Estatuto e constarão do aditivo de transporte.'
+      ], alignment: 'justify', margin: [0, 0, 0, 10] },
+
+      { text: [{ text: 'CLÁUSULA 10ª – TÍTULO EXECUTIVO EXTRAJUDICIAL:', bold: true }, ' As partes reconhecem que o presente instrumento constitui título executivo extrajudicial, nos termos do art. 784, III, do Código de Processo Civil, desde que assinado por duas testemunhas. O(A) ASSOCIADO(A) autoriza expressamente, em caso de inadimplemento e após notificação prévia, o protesto deste instrumento e/ou de demonstrativo de débito dele derivado, na forma da Lei 9.492/1997, reconhecendo-o como título executivo extrajudicial nos termos do art. 784, III, do CPC.\n',
+        { text: '§1º', bold: true }, ' - Para os fins previstos neste instrumento, o ASSOCIADO(A) manifesta seu ACEITE e concordância com as obrigações aqui assumidas, para eventual adoção das medidas extrajudiciais e/ou judiciais cabíveis e meios de cobrança previstos neste contrato, inclusive protesto, quando aplicável, nos termos da cláusula 5ª, §§4º e 5º.\n',
+        { text: '§2º', bold: true }, ' - As partes declaram que as obrigações previstas neste instrumento têm por finalidade disciplinar a prestação de serviço de administração realizada pela AEB e o serviço prestado pela empresa de transporte coletivo, contratada nos termos da legislação típica (Lei Municipal n.º 3.419/15 e Lei Municipal n.º 3.485/17), podendo sua exigibilidade e eventual execução observar, conforme o caso, os requisitos legais aplicáveis.\n',
+        { text: '§3º', bold: true }, ' - Uma vez reconhecida a instituição que obriga a AEB neste instrumento, qual seja: a administração, relativamente ao transporte coletivo de alunos, para a cidades de Franca - SP e Ribeirão Preto - SP, fica pactuado que qualquer emissão de documentos para efeitos fiscais é de responsabilidade exclusiva da empresa de transporte, não caracterizando referido e eventual documento requisito essencial desta avença, sem prejuízo da observância dos requisitos legais aplicáveis para fins de cobrança, protesto e/ou eventual execução.'
+      ], alignment: 'justify', margin: [0, 0, 0, 10] },
+
+      { text: [{ text: 'CLÁUSULA 11ª – PROTEÇÃO DE DADOS PESSOAIS (LGPD):', bold: true }, ' O(A) ASSOCIADO(A) autoriza o tratamento de seus dados pessoais (e de seu dependente, quando menor) pela AEB, com as seguintes condições:\n(i) Finalidade: gestão do vínculo associativo, emissão de identificação, organização e operação do transporte estudantil, comunicação oficial e cumprimento de obrigações legais e do Programa Municipal de Auxílio Transporte;\n(ii) Base legal: execução de contrato e cumprimento de obrigação legal/regulatória (art. 7º, V e II, da Lei 13.709/2018);\n(iii) Compartilhamento: com a empresa transportadora contratada e com o Município de Batatais, estritamente para as finalidades acima;\n(iv) Guarda: pelo prazo do vínculo e por até 5 (cinco anos) após seu término, para fins de defesa em eventuais demandas;\n(v) Direitos do titular: acesso, correção, eliminação e portabilidade, mediante solicitação aos canais oficiais da AEB, nos termos do art. 18 da LGPD.'
+      ], alignment: 'justify', margin: [0, 0, 0, 10] },
+
+      { text: [{ text: 'CLÁUSULA 12ª - Das Disposições Gerais:', bold: true }, ' Fica eleito o foro da Comarca Batatais, Estado de São Paulo, por mais privilegiado que o outro possa ser, para dirimir qualquer dúvida ou conflito de interesses, oriundos do presente instrumento.'], alignment: 'justify', margin: [0, 0, 0, 10] },
+
+      // Bloco do Link e QR Code Gerado Dinamicamente
+      { text: 'LINK PARA ACESSO AO ESTATUTO: https://www.aebatatais.com.br/transparencia/documentos/estatutos', link: 'https://www.aebatatais.com.br/transparencia/documentos/estatutos', color: 'blue', decoration: 'underline', alignment: 'center', margin: [0, 10, 0, 5], fontSize: 10 },
+      { qr: 'https://www.aebatatais.com.br/transparencia/documentos/estatutos', fit: 80, alignment: 'center', margin: [0, 0, 0, 15] },
+
+      // Bloco "Unbreakable" final para garantir que as assinaturas fiquem sempre juntas com a última cláusula
+      {
+        unbreakable: true,
+        stack: [
+          { text: [{ text: 'CLÁUSULA 13ª - ASSINATURA ELETRÔNICA E DISPENSA DE VIAS FÍSICAS:', bold: true }, ' As Partes concordam que este instrumento será assinado de forma eletrônica, utilizando-se o portal gov.br (níveis Prata ou Ouro), nos termos do art. 10, § 2º, da Medida Provisória nº 2.200-2/2001 e da Lei nº 14.063/2020. E, por estarem assim justas e contratadas, declaram reconhecer expressamente a validade, integridade, autenticidade e eficácia jurídica do presente documento, bem como sua força executiva, o qual constituirá um único arquivo digital original para todos os fins de direito, dispensando-se a emissão ou assinatura de vias físicas.'], alignment: 'justify', margin: [0, 0, 0, 80] },
+
+          {
+            columns: [
+              { text: '_____________________________________\nAssociado(a)\n\nNOME: ' + (dados.isMaior ? dados.nome : '') + '\nRG/CIN: ' + (dados.isMaior ? (dados.rg || dados.cpf) : ''), alignment: 'center' },
+              { text: '_____________________________________\nPai ou Responsável\n\nNOME: ' + (!dados.isMaior ? dados.nomeResp : '') + '\nRG/CIN: ' + (!dados.isMaior ? dados.rgResp : ''), alignment: 'center' }
+            ]
+          },
+          { text: '_____________________________________\nAssociação dos Estudantes de Batatais', alignment: 'center', margin: [0, 30, 0, 0] }
+        ]
+      }
+    ],
+    defaultStyle: { fontSize: 10 }
+  };
+};
