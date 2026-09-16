@@ -24,6 +24,10 @@ window.DocumentosAEB.gerarRescisao = function(dados) {
       
       { text: 'As Partes concordam que este instrumento será assinado de forma eletrônica, utilizando-se o portal gov.br (níveis Prata ou Ouro), nos termos do art. 10, § 2º, da Medida Provisória nº 2.200-2/2001 e da Lei nº 14.063/2020. E, por estarem assim justas e contratadas, declaram reconhecer expressamente a validade, integridade, autenticidade e eficácia jurídica do presente documento, bem como sua força executiva, o qual constituirá um único arquivo digital original para todos os fins de direito, dispensando-se a emissão ou assinatura de vias físicas.', margin: [0, 0, 0, 30], fontSize: 10, alignment: 'justify' },
 
+
+
+
+      
       {
         columns: [
           { text: '_____________________________________\nAssociado(a)\n\nNOME: ' + (dados.isMaior ? dados.nome : '') + '\nRG/CIN: ' + (dados.isMaior ? (dados.rg || dados.cpf) : ''), alignment: 'center' },
