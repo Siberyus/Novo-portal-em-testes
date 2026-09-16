@@ -47,8 +47,7 @@ window.DocumentosAEB.gerarFichaRecadastro = function(dados) {
       {
         unbreakable: true,
         stack: [
-          { text: 'DECLARAÇÃO:', bold: true, margin: [0, 0, 0, 5] },
-          { text: 'Declaro, para todos os fins legais, que as informações contidas nesta ficha de recadastramento e os documentos anexos são verdadeiros e estão atualizados. Estou ciente de que a manutenção da condição de associado(a) e os benefícios relativos às modalidades específicas dependem da entrega e assinatura dos respectivos Aditivos e Contratos aplicáveis à minha situação.\n\nOs dados informados nesta ficha serão tratados pela AEB para fins de gestão associativa e operação do transporte, podendo ser compartilhados com a transportadora e o Município, nos termos da cláusula de Proteção de Dados do Contrato-Base e da Lei 13.709/2018.', style: 'clause' },
+          { text: 'Os dados informados nesta ficha serão tratados pela AEB para fins de gestão associativa e operação do transporte, podendo ser compartilhados com a transportadora e o Município, nos termos da cláusula de Proteção de Dados do Contrato-Base e da Lei 13.709/2018.', style: 'clause' },
           { text: 'As Partes concordam que este instrumento será assinado de forma eletrônica, utilizando-se o portal gov.br (níveis Prata ou Ouro), nos termos do art. 10, § 2º, da Medida Provisória nº 2.200-2/2001 e da Lei nº 14.063/2020. E, por estarem assim justas e contratadas, declaram reconhecer expressamente a validade, integridade, autenticidade e eficácia jurídica do presente documento, bem como sua força executiva, o qual constituirá um único arquivo digital original para todos os fins de direito, dispensando-se a emissão ou assinatura de vias físicas.', style: 'clause', margin: [0, 0, 0, 80] },
           {
             columns: [
@@ -57,8 +56,6 @@ window.DocumentosAEB.gerarFichaRecadastro = function(dados) {
             ]
           },
           { text: '_____________________________________\nAssociação dos Estudantes de Batatais', style: 'assinatura', margin: [0, 80, 0, 0] }
-            ]
-          }
         ]
       }
     ],
