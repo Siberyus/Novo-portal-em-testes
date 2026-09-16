@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AEB - Portal de Documentos</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        aeb: { primary: '#3CA3DB', light: '#8fd3f4', dark: '#267da8' }
+                    },
+                    animation: { 'fade-in': 'fadeIn 0.3s ease-out forwards' },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(-10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Dependências do PDFMake (Substituindo o pdf-lib) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/vfs_fonts.js"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+
+    <style>
+        .dynamic-block { display: none; opacity: 0; transition: opacity 0.3s ease; }
+        .dynamic-block.show { display: block; opacity: 1; animation: fadeIn 0.4s ease forwards; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #8fd3f4; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #3CA3DB; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800 font-sans selection:bg-aeb-light selection:text-aeb-dark">
+
+    <header class="bg-aeb-primary text-white shadow-md">
+        <div class="max-w-5xl mx-auto px-4 py-8 flex items-center gap-4">
+            <div class="bg-white p-3 rounded-lg text-aeb-primary shrink-0 shadow-sm z-10 relative">
+                <i data-lucide="file-signature" class="w-10 h-10"></i>
+            </div>
+            <div class="flex items-center flex-1">
+                <img src="Logo_AEB_Sem_fundo.png" onerror="this.onerror=null;this.src='https://placehold.co/400x120/3CA3DB/ffffff?text=Logo+AEB';" alt="AEB - Associação dos Estudantes de Batatais" class="drop-shadow-md" style="height: 120px !important; width: auto !important; max-width: none !important; max-height: none !important; object-fit: contain;">
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-4 py-8">
+        
+        <div class="flex flex-col sm:flex-row gap-4 mb-8">
+            <button id="btn-tab-1" onclick="switchTab(1)" class="flex-1 flex items-center justify-center gap-2 py-4 px-6 rounded-xl font-semibold transition-all duration-200 border-2 border-aeb-primary bg-aeb-primary text-white shadow-lg hover:bg-aeb-dark hover:border-aeb-dark">
+                <i data-lucide="user-plus" class="w-5 h-5"></i> Cadastro / Recadastro
+            </button>
+            <button id="btn-tab-2" onclick="switchTab(2)" class="flex-1 flex items-center justify-center gap-2 py-4 px-6 rounded-xl font-semibold transition-all duration-200 border-2 border-slate-300 bg-white text-slate-600 hover:border-aeb-primary hover:text-aeb-primary shadow-sm">
+                <i data-lucide="files" class="w-5 h-5"></i> Documentos Avulsos
+            </button>
+        </div>
+
+        <section id="tab-1" class="bg-white rounded-2xl shadow-xl border border-slate-100 p-6 md:p-8 animate-fade-in">
+            <h2 class="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2 border-b pb-4">
+                <i data-lucide="clipboard-list" class="text-aeb-primary"></i> Formulário de Vínculo
+            </h2>
+
+            <form id="form-cadastro" onsubmit="gerarPDF(event, 'cadastro')">
+                
+                <div class="mb-8 p-5 bg-blue-50/50 border border-blue-100 rounded-xl">
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Qual o tipo do seu vínculo?</label>
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <label class="flex items-center gap-2 cursor-pointer p-3 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 flex-1">
+                            <input type="radio" name="tipo_vinculo" value="novo" checked required onchange="handleTipoVinculo()" class="w-5 h-5 text-aeb-primary focus:ring-aeb-primary">
+                            <span class="font-medium text-slate-800">Novo Cadastro (Primeira vez)</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer p-3 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 flex-1">
+                            <input type="radio" name="tipo_vinculo" value="recadastro" onchange="handleTipoVinculo()" class="w-5 h-5 text-aeb-primary focus:ring-aeb-primary">
+                            <span class="font-medium text-slate-800">Recadastramento (Já sou associado)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="bloco-foto" class="dynamic-block show mb-8 p-5 bg-slate-50 border border-slate-200 rounded-xl">
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                        <i data-lucide="image" class="w-4 h-4 inline mr-1 text-aeb-primary"></i> Foto 3x4 (Obrigatória para novo cadastro)
+                    </label>
+                    <p class="text-xs text-slate-500 mb-3">Você poderá ajustar a proporção exata da foto no passo seguinte.</p>
+                    
+                    <div class="flex flex-col md:flex-row gap-4 items-start">
+                        <div class="flex-1 w-full">
+                            <input type="file" id="cad-foto" accept="image/png, image/jpeg" required class="w-full text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-aeb-primary file:text-white hover:file:bg-aeb-dark cursor-pointer border border-slate-300 rounded-lg bg-white p-2">
+                        </div>
+                        <div id="foto-preview-container" class="hidden shrink-0 w-24 h-32 border-2 border-dashed border-aeb-primary rounded-lg overflow-hidden relative bg-slate-100 shadow-sm">
+                            <img id="foto-preview" class="w-full h-full object-cover">
+                            <div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity cursor-pointer" onclick="document.getElementById('cad-foto').click()">
+                                <span class="text-white text-xs font-bold text-center px-1">Refazer<br>Corte</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-8 p-5 bg-slate-50 border border-slate-200 rounded-xl">
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Você é maior de 18 anos?</label>
+                    <select id="maioridade" required onchange="handleMaioridade('cadastro')" class="w-full md:w-1/3 px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-aeb-primary outline-none bg-white">
+                        <option value="" disabled hidden selected>Selecione...</option>
+                        <option value="sim">Sim, sou maior de idade</option>
+                        <option value="nao">Não, sou menor de idade</option>
+                    </select>
+
+                    <div id="bloco-responsavel" class="dynamic-block mt-4 bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r-lg">
+                        <h3 class="text-amber-800 font-bold flex items-center gap-2 mb-3">
+                            <i data-lucide="alert-circle" class="w-5 h-5"></i> Dados do Responsável Legal
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">Nome Completo do Responsável</label>
+                                <input type="text" id="nome-responsavel" placeholder="Ex: Carlos Silva" class="w-full px-4 py-2 rounded-lg border border-amber-200 focus:ring-2 focus:ring-amber-400 bg-white outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">RG ou CIN do Responsável</label>
+                                <input type="text" id="rg-responsavel" oninput="mascaraDocResponsavel(this)" maxlength="14" placeholder="Ex: 00.000.000-X ou 000.000.000-00" class="w-full px-4 py-2 rounded-lg border border-amber-200 focus:ring-2 focus:ring-amber-400 bg-white outline-none">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                    <div class="space-y-4">
+                        <h3 class="text-lg font-bold text-aeb-dark border-b pb-2">Dados Pessoais</h3>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Nome do Estudante</label>
+                            <input type="text" id="cad-nome" placeholder="Ex: João Silva" required class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-aeb-primary outline-none">
+                        </div>
+                        
+                        <div class="bg-slate-100/50 border border-slate-200 rounded-lg p-4">
+                            <div class="mb-4 flex gap-6">
+                                <label class="flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-600">
+                                    <input type="radio" name="tipo_doc" value="rg_cpf" checked onchange="handleTipoDoc('cadastro')" class="w-4 h-4 text-aeb-primary"> Tenho RG e CPF
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-600">
+                                    <input type="radio" name="tipo_doc" value="cin" onchange="handleTipoDoc('cadastro')" class="w-4 h-4 text-aeb-primary"> Tenho apenas a CIN
+                                </label>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div id="bloco-cpf">
+                                    <label id="label-cpf" class="block text-sm font-medium text-slate-700 mb-1">CPF</label>
+                                    <input type="text" id="cad-cpf" oninput="mascaraCPF(this)" maxlength="14" placeholder="000.000.000-00" required class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-aeb-primary outline-none">
+                                </div>
+                                <div id="bloco-rg">
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">RG</label>
+                                    <input type="text" id="cad-rg" oninput="mascaraRG(this)" maxlength="12" placeholder="00.000.000-X" required class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-aeb-primary outline-none">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-12 gap-4">
+                            <div class="sm:col-span-6">
+                                <label class="block text-sm font-medium text-slate-700 mb-1">CEP</label>
+                                <input type="text" id="cad-cep" placeholder="00000-000" required maxlength="9" onkeyup="mascaraCEP(this, 'cadastro')" onblur="buscarCEP('cadastro')" class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-aeb-primary outline-none">
+                            </div>
+                            <div class="sm:col-span-6">
+                                <label class="block text-sm font-medium text-slate-700 mb-1">Cidade - Estado</label>
+                                <input type="text" id="cad-cidade" value="Batatais (SP)" readonly class="w-full px-4 py-2 rounded-lg border border-slate-200 bg-slate-100 text-slate-500 font-medium outline-none cursor-not-allowed">
+                            </div>
+
+                            <div class="sm:col-span-9">
+                                <label class="block text-sm font-medium text-slate-700 mb-1">Logradouro / Rua</label>
+                                <input type="text" id="cad-rua" placeholder="Ex: Rua das Flores" required readonly class="w-full px-4 py-2 rounded-lg border border-slate-200 bg-slate-100 text-slate-600 outline-none">
+                            </div>
+                            <div class="sm:col-span-3">
+                                <label class="block text-sm font-medium text-slate-700 mb-1">Número</label>
+                                <input type="text" id="cad-numero" placeholder="Ex: 123" required class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-aeb-primary outline-none">
+                            </div>
+
+                            <div class="sm:col-span-6">
+                                <label class="block text-sm font-medium text-slate-700 mb-1">Complemento</label>
+                                <input type="text" id="cad-complemento" placeholder="Apto 10" class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-aeb-primary outline-none">
+                            </div>
+                            <div class="sm:col-span-6">
+                                <label class="block text-sm font-medium text-slate-700 mb-1">Bairro</label>
+                                <input type="text" id="cad-bairro" placeholder="Centro" required readonly class="w-full px-4 py-2 rounded-lg border border-slate-200 bg-slate-100 text-slate-600 outline-none">
+                            </div>
+
+                            <div class="sm:col-span-6">
+                                <label class="block text-sm font-medium text-slate-700 mb-1">Celular (WhatsApp)</label>
+                                <input type="tel" id="cad-celular" oninput="mascaraTelefone(this)" placeholder="(16) 90000-0000" required class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-aeb-primary outline-none">
+                            </div>
+                            <div class="sm:col-span-6">
+                                <label class="block text-sm font-medium text-slate-700 mb-1">Telefone Fixo (Opc.)</label>
+                                <input type="tel" id="cad-tel" oninput="mascaraTelefone(this)" placeholder="(16) 3000-0000" class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-aeb-primary outline-none">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">E-mail</label>
+                            <input type="email" id="cad-email" placeholder="exemplo@email.com" required class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-aeb-primary outline-none">
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <h3 class="text-lg font-bold text-aeb-dark border-b pb-2">Dados Acadêmicos</h3>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Instituição de Ensino</label>
+                            <input type="text" id="cad-instituicao" placeholder="Ex: UNIFRAN, USP, Barão de Mauá..." required class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-aeb-primary outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Destino</label>
+                            <select id="cad-destino" required class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-aeb-primary bg-white outline-none">
+                                <option value="" disabled hidden selected>Selecione a cidade...</option>
+                                <option value="Franca-SP">Franca - SP</option>
+                                <option value="Ribeirao Preto-SP">Ribeirão Preto - SP</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Curso</label>
+                            <input type="text" id="cad-curso" placeholder="Nome do Curso" required class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-aeb-primary outline-none">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">Matrícula (RA)</label>
+                                <input type="text" id="cad-matricula" placeholder="Ex: 123456" required class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-aeb-primary outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">Período</label>
+                                <select id="cad-periodo" required class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-aeb-primary outline-none bg-white">
+                                    <option value="" disabled hidden selected>Selecione...</option>
+                                    <option value="Diurno">Diurno</option>
+                                    <option value="Vespertino">Vespertino</option>
+                                    <option value="Noturno">Noturno</option>
+                                    <option value="Integral">Integral</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">Data Ingresso (Aprox.)</label>
+                                <input type="date" id="cad-ingresso" required class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-aeb-primary outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">Formação Estimada</label>
+                                <input type="date" id="cad-conclusao" required class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-aeb-primary outline-none">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-8 p-5 bg-aeb-light/20 border border-aeb-light rounded-xl">
+                    <h3 class="text-lg font-bold text-aeb-dark mb-4 flex items-center gap-2">
+                        <i data-lucide="bus" class="w-5 h-5"></i> Modalidade de Transporte
+                    </h3>
+                    <div class="space-y-3">
+                        <label class="flex items-center gap-3 p-3 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer">
+                            <input type="radio" name="modalidade" value="integral" checked required onchange="handleModalidade()" class="w-5 h-5 text-aeb-primary">
+                            <span class="font-medium text-slate-800">1. Transporte Integral</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer">
+                            <input type="radio" name="modalidade" value="passe" onchange="handleModalidade()" class="w-5 h-5 text-aeb-primary">
+                            <span class="font-medium text-slate-800">2. Passe de Transporte</span>
+                        </label>
+                        <div id="bloco-passe" class="dynamic-block ml-8 p-4 bg-white border border-slate-200 rounded-lg">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">Quantidade</label>
+                                    <select id="passe-dias" class="w-full px-4 py-2 rounded-lg border border-slate-300 outline-none bg-white">
+                                        <option value="" disabled selected hidden>Selecione...</option>
+                                        <option value="1">1 dia/semana</option>
+                                        <option value="2">2 dias/semana</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">Quais dias?</label>
+                                    <input type="text" id="passe-quais-dias" placeholder="Ex: Segunda e Terça" class="w-full px-4 py-2 rounded-lg border border-slate-300 outline-none">
+                                </div>
+                            </div>
+                        </div>
+                        <label class="flex items-center gap-3 p-3 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer">
+                            <input type="radio" name="modalidade" value="associativo" onchange="handleModalidade()" class="w-5 h-5 text-aeb-primary">
+                            <span class="font-medium text-slate-800">3. Apenas Benefícios Associativos (Sem transporte)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="bloco-aditivos" class="mb-8 p-5 bg-slate-50 border border-slate-200 rounded-xl">
+                    <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <i data-lucide="layers" class="w-5 h-5"></i> Aditivos Opcionais (Descontos)
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="border border-slate-200 rounded-lg p-3 bg-white">
+                            <label class="flex items-center gap-3 cursor-pointer">
+                                <input type="radio" name="aditivo" value="nenhum" checked onchange="handleAditivos()" class="w-5 h-5 text-aeb-primary">
+                                <span class="font-medium text-slate-700">Nenhum aditivo / Não se aplica</span>
+                            </label>
+                        </div>
+                        <div id="container-irmaos" class="border border-slate-200 rounded-lg p-3 bg-white">
+                            <label class="flex items-center gap-3 cursor-pointer">
+                                <input type="radio" name="aditivo" id="rad-irmaos" value="irmaos" onchange="handleAditivos()" class="w-5 h-5 text-aeb-primary">
+                                <span class="font-medium text-slate-700">Desconto para Irmãos (Estudantes pela AEB)</span>
+                            </label>
+                            <div id="bloco-irmaos" class="dynamic-block mt-3 pt-3 border-t border-slate-100">
+                                <label class="block text-sm font-medium text-slate-700 mb-1">Nome(s) do(s) Irmão(s)</label>
+                                <input type="text" id="nome-irmaos" placeholder="Ex: Maria Silva" class="w-full px-4 py-2 rounded-lg border border-slate-300 outline-none">
+                            </div>
+                        </div>
+                        <div id="container-funcionario" class="border border-slate-200 rounded-lg p-3 bg-white">
+                            <label class="flex items-center gap-3 cursor-pointer">
+                                <input type="radio" name="aditivo" id="rad-funcionario" value="funcionario" onchange="handleAditivos()" class="w-5 h-5 text-aeb-primary">
+                                <span class="font-medium text-slate-700">Isenção Parcial (Funcionário Público Municipal de Batatais)</span>
+                            </label>
+                            <div id="bloco-funcionario" class="dynamic-block mt-3 pt-3 border-t border-slate-100 space-y-4">
+                                <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-2">
+                                    <span class="block text-sm font-medium text-slate-700">Declarações Complementares:</span>
+                                    <label class="flex items-start gap-2 text-sm text-slate-600">
+                                        <input type="radio" name="func_declaracao" value="soma_inferior" class="mt-0.5"> 
+                                        A soma da mensalidade e do auxílio é inferior à mensalidade em Batatais.
+                                    </label>
+                                    <label class="flex items-start gap-2 text-sm text-slate-600">
+                                        <input type="radio" name="func_declaracao" value="escola_publica" class="mt-0.5"> 
+                                        Estudo em escola pública isenta de mensalidade.
+                                    </label>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">Instituição de Ensino</label>
+                                        <input type="text" id="func-inst" placeholder="Ex: UNIFRAN, USP..." class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-aeb-primary outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">Curso</label>
+                                        <input type="text" id="func-curso" placeholder="Nome do Curso" class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-aeb-primary outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">Período/Ano referente</label>
+                                        <input type="text" id="func-periodo-ano" placeholder="Ex: 2º Sem / 2026" class="w-full px-4 py-2 rounded-lg border border-slate-300 outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">Valor em Batatais</label>
+                                        <input type="text" id="func-valor-aeb" oninput="mascaraMoeda(this)" placeholder="R$ 0,00" class="w-full px-4 py-2 rounded-lg border border-slate-300 outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">Valor na Instituição</label>
+                                        <input type="text" id="func-valor-inst" oninput="mascaraMoeda(this)" placeholder="R$ 0,00" class="w-full px-4 py-2 rounded-lg border border-slate-300 outline-none">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-8 p-4 bg-blue-50 text-blue-800 rounded-lg border border-blue-200 flex items-start gap-3">
+                    <i data-lucide="info" class="w-6 h-6 shrink-0 mt-0.5"></i>
+                    <p id="aviso-assinatura-cadastro" class="text-sm">
+                        <strong class="block mb-1">Sobre a Assinatura:</strong>
+                        Após gerar o PDF, o <strong>próprio associado(a)</strong> deverá realizar a assinatura digital do arquivo através do portal GOV.BR <strong>(necessário nível Prata ou Ouro)</strong> e encaminhar para secretária da AEB.
+                    </p>
+                </div>
+
+                <button type="submit" class="w-full flex items-center justify-center gap-3 bg-aeb-primary hover:bg-aeb-dark text-white text-lg font-bold py-5 px-8 rounded-xl shadow-lg transition-transform transform hover:-translate-y-1">
+                    <i data-lucide="file-down" class="w-6 h-6"></i> GERAR PACOTE DE DOCUMENTOS (PDFs INDIVIDUAIS)
+                </button>
+            </form>
+        </section>
+
+        <section id="tab-2" class="bg-white rounded-2xl shadow-xl border border-slate-100 p-6 md:p-8 hidden">
+            <h2 class="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2 border-b pb-4">
+                <i data-lucide="file-stack" class="text-aeb-primary"></i> Gerar Documento Avulso
+            </h2>
+            <p class="text-slate-600 mb-8">Utilize esta aba apenas se você já possui cadastro e precisa gerar um documento específico separadamente.</p>
+
+            <form id="form-avulso" onsubmit="gerarPDF(event, 'avulso')">
+                
+                <div class="mb-8 p-5 bg-slate-50 border border-slate-200 rounded-xl">
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Qual documento deseja gerar?</label>
+                    <select id="avulso-documento" required onchange="handleDocumentoAvulso()" class="w-full px-4 py-4 text-lg rounded-xl border-2 border-slate-300 focus:border-aeb-primary bg-white outline-none">
+                        <option value="" disabled selected hidden>Selecione o documento...</option>
+                        <option value="Contrato-Base">Contrato-Base (Apenas Adesão)</option>
+                        <option value="Aditivo-Transporte">Aditivo de Transporte Integral</option>
+                        <option value="Aditivo-Passe">Aditivo de Passe de Transporte</option>
+                        <option value="Aditivo-Irmaos">Aditivo para Desconto de Irmãos</option>
+                        <option value="Aditivo-Funcionario">Aditivo para Funcionário Público</option>
+                        <option value="Termo-Rescisao">Termo de Rescisão</option>
+                        <option value="Termo-Cancelamento-Aditivos">Termo de Cancelamento de Aditivos</option>
+                    </select>
+                </div>
+
+                <div class="mb-8 p-5 bg-slate-50 border border-slate-200 rounded-xl">
+                    <label class="block text-sm font-semibold text-slate-700 mb-4">Dados do Associado(a)</label>
+                    
+                    <div class="mb-4 flex gap-6">
+                        <label class="flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-600">
+                            <input type="radio" name="tipo_doc_avulso" value="rg_cpf" checked onchange="handleTipoDoc('avulso')" class="w-4 h-4 text-aeb-primary"> Tenho RG e CPF
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-600">
+                            <input type="radio" name="tipo_doc_avulso" value="cin" onchange="handleTipoDoc('avulso')" class="w-4 h-4 text-aeb-primary"> Tenho apenas a CIN
+                        </label>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Nome do Associado(a)</label>
+                            <input type="text" id="avulso-nome" placeholder="Ex: João Silva" required class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-aeb-primary outline-none">
+                        </div>
+                        <div id="bloco-cpf-avulso">
+                            <label id="label-cpf-avulso" class="block text-sm font-medium text-slate-700 mb-1">CPF</label>
+                            <input type="text" id="avulso-cpf" oninput="mascaraCPF(this)" maxlength="14" placeholder="000.000.000-00" required class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-aeb-primary outline-none">
+                        </div>
+                        <div id="bloco-rg-avulso">
+                            <label class="block text-sm font-medium text-slate-700 mb-1">RG</label>
+                            <input type="text" id="avulso-rg" oninput="mascaraRG(this)" maxlength="12" placeholder="00.000.000-X" required class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-aeb-primary outline-none">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-8 p-5 bg-slate-50 border border-slate-200 rounded-xl">
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">O Associado(a) é maior de 18 anos?</label>
+                    <select id="maioridade-avulso" required onchange="handleMaioridade('avulso')" class="w-full md:w-1/3 px-4 py-3 rounded-lg border border-slate-300 outline-none bg-white">
+                        <option value="" disabled hidden selected>Selecione...</option>
+                        <option value="sim">Sim, maior de idade</option>
+                        <option value="nao">Não, menor de idade</option>
+                    </select>
+
+                    <div id="bloco-responsavel-avulso" class="dynamic-block mt-4 bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r-lg">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">Nome do Responsável</label>
+                                <input type="text" id="avulso-nome-resp" placeholder="Ex: Carlos Silva" class="w-full px-4 py-2 rounded-lg border border-amber-200 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">RG ou CIN do Responsável</label>
+                                <input type="text" id="avulso-rg-resp" oninput="mascaraDocResponsavel(this)" maxlength="14" placeholder="Ex: 00.000.000-X ou 000.000.000-00" class="w-full px-4 py-2 rounded-lg border border-amber-200 outline-none">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="avulso-bloco-endereco" class="dynamic-block mb-8 p-5 border border-slate-200 rounded-xl">
+                    <label class="block text-sm font-semibold text-slate-700 mb-4">Endereço Completo</label>
+                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-4">
+                        <div class="sm:col-span-6">
+                            <label class="block text-sm font-medium text-slate-700 mb-1">CEP</label>
+                            <input type="text" id="avulso-cep" placeholder="00000-000" maxlength="9" onkeyup="mascaraCEP(this, 'avulso')" onblur="buscarCEP('avulso')" class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-aeb-primary outline-none">
+                        </div>
+                        <div class="sm:col-span-6">
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Cidade - Estado</label>
+                            <input type="text" id="avulso-cidade" value="Batatais (SP)" readonly class="w-full px-4 py-2 rounded-lg border border-slate-200 bg-slate-100 text-slate-500 font-medium outline-none cursor-not-allowed">
+                        </div>
+                        <div class="sm:col-span-9">
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Logradouro / Rua</label>
+                            <input type="text" id="avulso-rua" placeholder="Ex: Rua das Flores" readonly class="w-full px-4 py-2 rounded-lg border border-slate-200 bg-slate-100 text-slate-600 outline-none">
+                        </div>
+                        <div class="sm:col-span-3">
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Número</label>
+                            <input type="text" id="avulso-numero" placeholder="Ex: 123" class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-aeb-primary outline-none">
+                        </div>
+                        <div class="sm:col-span-6">
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Complemento</label>
+                            <input type="text" id="avulso-complemento" placeholder="Apto 10" class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-aeb-primary outline-none">
+                        </div>
+                        <div class="sm:col-span-6">
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Bairro</label>
+                            <input type="text" id="avulso-bairro" placeholder="Centro" readonly class="w-full px-4 py-2 rounded-lg border border-slate-200 bg-slate-100 text-slate-600 outline-none">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="avulso-bloco-passe" class="dynamic-block mb-8 p-5 border border-slate-200 rounded-xl">
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Modalidade do Passe</label>
+                    <select id="avulso-passe-qtd" class="w-full md:w-1/2 px-4 py-3 rounded-lg border border-slate-300 outline-none bg-white">
+                        <option value="" disabled selected hidden>Selecione...</option>
+                        <option value="1">1 PASSE (Uma viagem semanal)</option>
+                        <option value="2">2 PASSES (Duas viagens semanais)</option>
+                    </select>
+                </div>
+
+                <div id="avulso-bloco-irmaos" class="dynamic-block mb-8 p-5 border border-slate-200 rounded-xl">
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Nome(s) do(s) Irmão(s) (Associado AEB)</label>
+                    <input type="text" id="avulso-nome-irmao" placeholder="Ex: Maria Silva" class="w-full px-4 py-3 rounded-lg border border-slate-300 outline-none">
+                </div>
+
+                <div id="avulso-bloco-funcionario" class="dynamic-block mb-8 p-5 border border-slate-200 rounded-xl">
+                    <div class="space-y-4">
+                        <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-2">
+                            <span class="block text-sm font-medium text-slate-700">Declarações Complementares:</span>
+                            <label class="flex items-start gap-2 text-sm text-slate-600">
+                                <input type="radio" name="avulso_func_declaracao" value="soma_inferior" class="mt-0.5"> 
+                                A soma da mensalidade e do auxílio é inferior à mensalidade em Batatais.
+                            </label>
+                            <label class="flex items-start gap-2 text-sm text-slate-600">
+                                <input type="radio" name="avulso_func_declaracao" value="escola_publica" class="mt-0.5"> 
+                                Estudo em escola pública isenta de mensalidade.
+                            </label>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div><label class="block text-sm mb-1">Instituição</label><input type="text" id="avulso-func-inst" placeholder="Ex: UNIFRAN" class="w-full p-2 border rounded-lg"></div>
+                            <div><label class="block text-sm mb-1">Curso</label><input type="text" id="avulso-func-curso" placeholder="Ex: Direito" class="w-full p-2 border rounded-lg"></div>
+                            <div><label class="block text-sm mb-1">Período/Ano</label><input type="text" id="avulso-func-periodo" placeholder="Ex: 2º Sem / 2026" class="w-full p-2 border rounded-lg"></div>
+                            <div><label class="block text-sm mb-1">Valor em Batatais</label><input type="text" id="avulso-func-valoraeb" oninput="mascaraMoeda(this)" placeholder="R$ 0,00" class="w-full p-2 border rounded-lg"></div>
+                            <div><label class="block text-sm mb-1">Valor na Instituição</label><input type="text" id="avulso-func-valorinst" oninput="mascaraMoeda(this)" placeholder="R$ 0,00" class="w-full p-2 border rounded-lg"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="avulso-bloco-rescisao" class="dynamic-block mb-8 p-5 bg-slate-50 border border-slate-200 rounded-xl">
+                    <label class="block text-sm font-semibold text-slate-700 mb-4">1. TIPO DE RESCISÃO SOLICITADA (Assinale uma opção):</label>
+                    <div class="space-y-3 mb-6">
+                        <label class="flex items-start gap-3 p-4 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer transition-colors">
+                            <input type="radio" name="tipo_rescisao" value="cancelamento_transporte" checked required class="w-5 h-5 mt-0.5 text-aeb-primary focus:ring-aeb-primary">
+                            <div>
+                                <span class="font-bold text-slate-800 block">OPÇÃO 1: CANCELAMENTO APENAS DO TRANSPORTE ESTUDANTIL</span>
+                                <p class="text-sm text-slate-600 mt-1 leading-relaxed">Rescisão exclusiva do "Aditivo Contratual de Transporte Estudantil" (e seus eventuais aditivos acessórios, como Passe, Irmãos ou Funcionário Público). Declaro o desejo de manter minha condição de associado(a) à AEB, preservando os direitos e sujeitando-me aos deveres institucionais previstos no Estatuto, permanecendo devida a cobrança correspondente ao período de aviso prévio.</p>
+                            </div>
+                        </label>
+                        <label class="flex items-start gap-3 p-4 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer transition-colors">
+                            <input type="radio" name="tipo_rescisao" value="desligamento_total" class="w-5 h-5 mt-0.5 text-aeb-primary focus:ring-aeb-primary">
+                            <div>
+                                <span class="font-bold text-slate-800 block">OPÇÃO 2: DESLIGAMENTO TOTAL DA ASSOCIAÇÃO</span>
+                                <p class="text-sm text-slate-600 mt-1 leading-relaxed">Rescisão do "Contrato-Base de Adesão à AEB" e de todos os Aditivos vinculados. Solicito minha desvinculação total do quadro social da Associação, perdendo a condição de associado(a) e encerrando meus deveres estatutários apenas na data do efetivo desligamento associativo (término dos 15 dias de aviso prévio), permanecendo devida a cobrança correspondente a este período.</p>
+                            </div>
+                        </label>
+                    </div>
+
+                    <label class="block text-sm font-semibold text-slate-700 mb-4 border-t border-slate-200 pt-6">2. CONDIÇÕES DE USO DURANTE O AVISO PRÉVIO (Assinale apenas uma opção):</label>
+                    <div class="space-y-3">
+                        <label class="flex items-start gap-3 p-4 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer transition-colors">
+                            <input type="radio" name="condicao_aviso" value="manutencao" checked required class="w-5 h-5 mt-0.5 text-aeb-primary focus:ring-aeb-primary">
+                            <div>
+                                <span class="font-bold text-slate-800 block">OPÇÃO A: MANUTENÇÃO DO EMBARQUE</span>
+                                <p class="text-sm text-slate-600 mt-1 leading-relaxed">Declaro que farei uso físico do transporte até o final do período do aviso prévio de 15 (quinze) dias, assumindo o custo da mensalidade integral referente ao(s) ciclo(s) de faturamento mensal em que houver a ocupação e utilização da referida vaga.</p>
+                            </div>
+                        </label>
+                        <label class="flex items-start gap-3 p-4 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer transition-colors">
+                            <input type="radio" name="condicao_aviso" value="liberacao" class="w-5 h-5 mt-0.5 text-aeb-primary focus:ring-aeb-primary">
+                            <div>
+                                <span class="font-bold text-slate-800 block">OPÇÃO B: SUSPENSÃO OPERACIONAL E COBRANÇA PROPORCIONAL</span>
+                                <p class="text-sm text-slate-600 mt-1 leading-relaxed">Concordo com a suspensão do meu direito de embarque de forma imediata ou ao final do mês vigente (conforme alinhamento com a secretaria para liberação da vaga). Tenho ciência de que arcarei com o valor correspondente aos dias em que o serviço esteve à minha disposição no mês da solicitação, acrescido obrigatoriamente da proporção referente ao período administrativo de 15 (quinze) dias de aviso prévio.</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="avulso-bloco-cancelamento-aditivos" class="dynamic-block mb-8 p-5 bg-slate-50 border border-slate-200 rounded-xl">
+                    <label class="block text-sm font-semibold text-slate-700 mb-4">ADITIVO/BENEFÍCIO A SER CANCELADO (Assinale uma opção):</label>
+                    <div class="space-y-3">
+                        <label class="flex items-center gap-3 p-4 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer transition-colors">
+                            <input type="radio" name="aditivo_cancelado" value="passe" checked required class="w-5 h-5 text-aeb-primary focus:ring-aeb-primary">
+                            <span class="font-medium text-slate-800">Aditivo Contratual – Modalidade Passe</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-4 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer transition-colors">
+                            <input type="radio" name="aditivo_cancelado" value="irmaos" class="w-5 h-5 text-aeb-primary focus:ring-aeb-primary">
+                            <span class="font-medium text-slate-800">Aditivo Contratual – Desconto para Irmãos</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-4 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer transition-colors">
+                            <input type="radio" name="aditivo_cancelado" value="funcionario" class="w-5 h-5 text-aeb-primary focus:ring-aeb-primary">
+                            <span class="font-medium text-slate-800">Aditivo Contratual – Isenção para Funcionário Público Municipal</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="mb-8 p-4 bg-blue-50 text-blue-800 rounded-lg border border-blue-200 flex items-start gap-3">
+                    <i data-lucide="info" class="w-6 h-6 shrink-0 mt-0.5"></i>
+                    <p id="aviso-assinatura-avulso" class="text-sm">
+                        <strong class="block mb-1">Sobre a Assinatura:</strong>
+                        Após gerar o PDF, o <strong>próprio associado(a)</strong> deverá realizar a assinatura digital do arquivo através do portal GOV.BR <strong>(necessário nível Prata ou Ouro)</strong> e encaminhar para secretária da AEB.
+                    </p>
+                </div>
+
+                <button type="submit" class="w-full flex items-center justify-center gap-3 bg-aeb-primary hover:bg-aeb-dark text-white text-lg font-bold py-5 px-8 rounded-xl shadow-lg transition-transform transform hover:-translate-y-1">
+                    <i data-lucide="file-output" class="w-6 h-6"></i> GERAR ARQUIVO SELECIONADO (PDF)
+                </button>
+            </form>
+        </section>
+    </main>
+
+    <footer class="mt-12 bg-slate-800 text-slate-400 py-6 text-center text-sm">
+        <p>Associação dos Estudantes de Batatais (AEB) &copy; 2026</p>
+        <p class="mt-1">Sistema Gerador de Contratos Inteligente v6.0 (PDFMake Dinâmico)</p>
+    </footer>
+
+    <div id="crop-modal" class="fixed inset-0 bg-black/80 z-[100] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl w-full max-w-lg overflow-hidden flex flex-col">
+            <div class="p-4 border-b flex justify-between items-center">
+                <h3 class="font-bold text-lg text-slate-800">Ajustar Foto 3x4</h3>
+                <button type="button" onclick="closeCropModal()" class="text-slate-500 hover:text-red-500 transition-colors">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <div class="p-4 bg-slate-100 flex-1 flex items-center justify-center">
+                <div style="width: 100%; height: 350px !important; display: block; overflow: hidden; background-color: #000;">
+                    <img id="crop-image" style="max-width: 100%; display: block;">
+                </div>
+            </div>
+            <div class="p-4 border-t flex justify-end gap-3 bg-slate-50">
+                <button type="button" onclick="closeCropModal()" class="px-5 py-2.5 text-slate-600 hover:bg-slate-200 rounded-lg font-medium transition-colors">Cancelar</button>
+                <button type="button" onclick="confirmCrop()" class="px-5 py-2.5 bg-aeb-primary hover:bg-aeb-dark text-white rounded-lg font-medium shadow-md transition-colors">Confirmar Corte</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Importação do arquivo de templates da AEB -->
+    <script src="templates.js"></script>
+
+    <script>
+        lucide.createIcons();
+
+        let cropperInstance = null;
+        let croppedImageData = null;
+
+        document.getElementById('cad-foto').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const cropImage = document.getElementById('crop-image');
+                    cropImage.src = event.target.result;
+                    document.getElementById('crop-modal').classList.remove('hidden');
+                    
+                    if (cropperInstance) cropperInstance.destroy();
+                    
+                    setTimeout(() => {
+                        cropperInstance = new Cropper(cropImage, {
+                            viewMode: 1,
+                            dragMode: 'move',
+                            aspectRatio: 3 / 4,
+                            cropBoxMovable: false,
+                            cropBoxResizable: false,
+                            toggleDragModeOnDblclick: false,
+                            responsive: true,
+                            restore: false
+                        });
+                    }, 350);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function closeCropModal() {
+            document.getElementById('crop-modal').classList.add('hidden');
+            if (cropperInstance) {
+                cropperInstance.destroy();
+                cropperInstance = null;
+            }
+            if (!croppedImageData) {
+                document.getElementById('cad-foto').value = ''; 
+            }
+        }
+
+        function confirmCrop() {
+            if (!cropperInstance) return;
+            const canvas = cropperInstance.getCroppedCanvas({
+                width: 600,
+                height: 800,
+                imageSmoothingEnabled: true,
+                imageSmoothingQuality: 'high',
+            });
+            croppedImageData = canvas.toDataURL('image/jpeg', 0.9);
+            const previewContainer = document.getElementById('foto-preview-container');
+            const previewImg = document.getElementById('foto-preview');
+            previewImg.src = croppedImageData;
+            previewContainer.classList.remove('hidden');
+            closeCropModal();
+        }
+
+        function mascaraCPF(input) {
+            let v = input.value.replace(/\D/g, '');
+            if (v.length > 11) v = v.substring(0, 11);
+            v = v.replace(/(\d{3})(\d)/, '$1.$2');
+            v = v.replace(/(\d{3})(\d)/, '$1.$2');
+            v = v.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+            input.value = v;
+        }
+
+        function mascaraRG(input) {
+            let v = input.value.toUpperCase().replace(/[^\dX]/g, '');
+            if (v.length > 9) v = v.substring(0, 9);
+            v = v.replace(/^(\d{2})(\d)/, '$1.$2');
+            v = v.replace(/(\d{3})(\d)/, '$1.$2');
+            v = v.replace(/(\d{3})([\dX])$/, '$1-$2');
+            input.value = v;
+        }
+
+        function mascaraDocResponsavel(input) {
+            let v = input.value.toUpperCase().replace(/[^\dX]/g, '');
+            if (v.length > 11) v = v.substring(0, 11);
+            if (v.length <= 9) {
+                 v = v.replace(/^(\d{2})(\d)/, '$1.$2');
+                 v = v.replace(/(\d{3})(\d)/, '$1.$2');
+                 v = v.replace(/(\d{3})([\dX])$/, '$1-$2');
+            } else {
+                 v = v.replace(/^(\d{3})(\d)/, '$1.$2');
+                 v = v.replace(/(\d{3})(\d)/, '$1.$2');
+                 v = v.replace(/(\d{3})([\dX])$/, '$1-$2');
+            }
+            input.value = v;
+        }
+
+        function mascaraTelefone(input) {
+            let v = input.value.replace(/\D/g, '');
+            if (v.length === 0) { input.value = ''; return; }
+            if (v.length <= 2) { input.value = '(' + v; }
+            else if (v.length <= 6) { input.value = '(' + v.substring(0, 2) + ') ' + v.substring(2); }
+            else if (v.length <= 10) { input.value = '(' + v.substring(0, 2) + ') ' + v.substring(2, 6) + '-' + v.substring(6); }
+            else { input.value = '(' + v.substring(0, 2) + ') ' + v.substring(2, 7) + '-' + v.substring(7, 11); }
+        }
+
+        function mascaraMoeda(input) {
+            let v = input.value.replace(/\D/g, '');
+            if(v === '') { input.value = ''; return; }
+            let valorNum = parseInt(v, 10);
+            if(isNaN(valorNum)) return;
+            v = (valorNum / 100).toFixed(2);
+            v = v.replace(".", ",");
+            v = v.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
+            input.value = "R$ " + v;
+        }
+
+        let ultimoCepCad = '';
+        let ultimoCepAvulso = '';
+        
+        async function buscarCEP(context) {
+            if (Swal.isVisible()) return;
+            
+            const prefix = context === 'cadastro' ? 'cad' : 'avulso';
+            const cepInput = document.getElementById(`${prefix}-cep`);
+            
+            if (!cepInput || !cepInput.value) return;
+
+            const cep = cepInput.value.replace(/\D/g, '');
+            if (cep.length !== 8) return;
+            
+            let ultimoCep = context === 'cadastro' ? ultimoCepCad : ultimoCepAvulso;
+
+            if (cep !== ultimoCep) {
+                if (context === 'cadastro') ultimoCepCad = cep;
+                else ultimoCepAvulso = cep;
+                
+                try {
+                    const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+                    const data = await res.json();
+                    if (data.erro) throw new Error();
+                    document.getElementById(`${prefix}-rua`).value = data.logradouro;
+                    document.getElementById(`${prefix}-bairro`).value = data.bairro;
+                    document.getElementById(`${prefix}-numero`).focus();
+                } catch (e) {
+                    Swal.fire({
+                        icon: 'question', 
+                        title: 'CEP não encontrado',
+                        text: 'Deseja digitar o endereço manualmente ou tentar novamente?',
+                        showCancelButton: true,
+                        confirmButtonText: 'Digitar Manualmente',
+                        cancelButtonText: 'Tentar Novamente',
+                        confirmButtonColor: '#3CA3DB',
+                        cancelButtonColor: '#94a3b8'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            document.getElementById(`${prefix}-rua`).readOnly = false;
+                            document.getElementById(`${prefix}-bairro`).readOnly = false;
+                            document.getElementById(`${prefix}-rua`).classList.remove('bg-slate-100');
+                            document.getElementById(`${prefix}-bairro`).classList.remove('bg-slate-100');
+                            document.getElementById(`${prefix}-rua`).focus();
+                        } else {
+                            if (context === 'cadastro') ultimoCepCad = ''; 
+                            else ultimoCepAvulso = '';
+                            cepInput.focus();
+                        }
+                    });
+                }
+            }
+        }
+
+        function mascaraCEP(input, context) {
+            let v = input.value.replace(/\D/g, '');
+            if (v.length > 5) v = v.substring(0, 5) + '-' + v.substring(5, 8);
+            input.value = v;
+            if (v.replace(/\D/g, '').length === 8) buscarCEP(context);
+            else {
+                if (context === 'cadastro') ultimoCepCad = '';
+                else ultimoCepAvulso = '';
+            }
+        }
+
+        function switchTab(tabId) {
+            const tabs = { 1: document.getElementById('tab-1'), 2: document.getElementById('tab-2') };
+            const btns = { 1: document.getElementById('btn-tab-1'), 2: document.getElementById('btn-tab-2') };
+            const activeClass = ['bg-aeb-primary', 'text-white', 'border-aeb-primary', 'shadow-lg'];
+            const inactiveClass = ['bg-white', 'text-slate-600', 'border-slate-300', 'shadow-sm'];
+
+            Object.keys(tabs).forEach(id => {
+                if (id == tabId) {
+                    tabs[id].classList.remove('hidden');
+                    btns[id].classList.add(...activeClass);
+                    btns[id].classList.remove(...inactiveClass, 'hover:border-aeb-primary', 'hover:text-aeb-primary');
+                } else {
+                    tabs[id].classList.add('hidden');
+                    btns[id].classList.add(...inactiveClass, 'hover:border-aeb-primary', 'hover:text-aeb-primary');
+                    btns[id].classList.remove(...activeClass);
+                }
+            });
+        }
+
+        function handleTipoVinculo() {
+            const isNovo = document.querySelector('input[name="tipo_vinculo"]:checked').value === 'novo';
+            const blocoFoto = document.getElementById('bloco-foto');
+            const inputFoto = document.getElementById('cad-foto');
+            
+            if(isNovo) {
+                blocoFoto.classList.add('show');
+                inputFoto.required = true;
+            } else {
+                blocoFoto.classList.remove('show');
+                inputFoto.required = false;
+                inputFoto.value = ''; 
+                croppedImageData = null; 
+                document.getElementById('foto-preview-container').classList.add('hidden');
+            }
+        }
+
+        function handleTipoDoc(context) {
+            const prefix = context === 'cadastro' ? 'cad' : 'avulso';
+            const docName = context === 'cadastro' ? 'tipo_doc' : 'tipo_doc_avulso';
+            const inputChecked = document.querySelector(`input[name="${docName}"]:checked`);
+            
+            if (!inputChecked) return;
+            const isCIN = inputChecked.value === 'cin';
+            
+            const blocoRg = document.getElementById(context === 'cadastro' ? 'bloco-rg' : 'bloco-rg-avulso');
+            const inputRg = document.getElementById(`${prefix}-rg`);
+            const labelCpf = document.getElementById(context === 'cadastro' ? 'label-cpf' : 'label-cpf-avulso');
+            const blocoCpf = document.getElementById(context === 'cadastro' ? 'bloco-cpf' : 'bloco-cpf-avulso');
+
+            blocoRg.classList.toggle('hidden', isCIN);
+            inputRg.required = !isCIN;
+            labelCpf.innerText = isCIN ? 'Número da CIN (CPF)' : 'CPF';
+            
+            if (context === 'cadastro') {
+                blocoCpf.classList.toggle('sm:col-span-2', isCIN);
+            } else {
+                blocoCpf.classList.toggle('md:col-span-2', isCIN);
+            }
+        }
+
+        function handleMaioridade(context) {
+            const selectId = context === 'cadastro' ? 'maioridade' : 'maioridade-avulso';
+            const blocoId = context === 'cadastro' ? 'bloco-responsavel' : 'bloco-responsavel-avulso';
+            const prefix = context === 'cadastro' ? '' : 'avulso-';
+            const avisoId = context === 'cadastro' ? 'aviso-assinatura-cadastro' : 'aviso-assinatura-avulso';
+
+            const isMenor = document.getElementById(selectId).value === 'nao';
+            document.getElementById(blocoId).classList.toggle('show', isMenor);
+            
+            document.getElementById(`${prefix}nome${context==='cadastro'?'-responsavel':'-resp'}`).required = isMenor;
+            document.getElementById(`${prefix}rg${context==='cadastro'?'-responsavel':'-resp'}`).required = isMenor;
+
+            const aviso = document.getElementById(avisoId);
+            if(isMenor) {
+                aviso.innerHTML = `<strong class="block mb-1">Atenção na Assinatura:</strong> Após gerar o PDF, por se tratar de associado(a) menor de idade, a assinatura digital do arquivo deve ser realizada pelo <strong>Associado(a)</strong> e também pelo <strong>Responsável Legal</strong> através do portal GOV.BR <strong>(necessário nível Prata ou Ouro)</strong> e encaminhar para secretária da AEB.`;
+                aviso.parentElement.classList.replace('bg-blue-50', 'bg-amber-50');
+                aviso.parentElement.classList.replace('border-blue-200', 'border-amber-300');
+                aviso.parentElement.classList.replace('text-blue-800', 'text-amber-900');
+            } else {
+                aviso.innerHTML = `<strong class="block mb-1">Sobre a Assinatura:</strong> Após gerar o PDF, o <strong>próprio associado(a)</strong> deverá realizar a assinatura digital do arquivo através do portal GOV.BR <strong>(necessário nível Prata ou Ouro)</strong> e encaminhar para secretária da AEB.`;
+                aviso.parentElement.classList.replace('bg-amber-50', 'bg-blue-50');
+                aviso.parentElement.classList.replace('border-amber-300', 'border-blue-200');
+                aviso.parentElement.classList.replace('text-amber-900', 'text-blue-800');
+            }
+        }
+
+        function handleModalidade() {
+            const mod = document.querySelector('input[name="modalidade"]:checked').value;
+            const bPasse = document.getElementById('bloco-passe');
+            const bAditivos = document.getElementById('bloco-aditivos');
+            const radNenhum = document.querySelector('input[name="aditivo"][value="nenhum"]');
+            
+            bPasse.classList.toggle('show', mod === 'passe');
+            document.getElementById('passe-dias').required = mod === 'passe';
+            document.getElementById('passe-quais-dias').required = mod === 'passe';
+
+            bAditivos.style.opacity = '1';
+            bAditivos.style.pointerEvents = 'auto';
+            document.getElementById('rad-irmaos').disabled = false;
+            document.getElementById('rad-funcionario').disabled = false;
+
+            if (mod === 'associativo') {
+                bAditivos.style.opacity = '0.5';
+                bAditivos.style.pointerEvents = 'none';
+                radNenhum.checked = true;
+                handleAditivos();
+            } else if (mod === 'passe') {
+                document.getElementById('container-irmaos').style.opacity = '0.5';
+                document.getElementById('rad-irmaos').disabled = true;
+                document.getElementById('container-funcionario').style.opacity = '0.5';
+                document.getElementById('rad-funcionario').disabled = true;
+                
+                if(document.getElementById('rad-irmaos').checked || document.getElementById('rad-funcionario').checked) {
+                    radNenhum.checked = true;
+                }
+                handleAditivos();
+            } else {
+                document.getElementById('container-irmaos').style.opacity = '1';
+                document.getElementById('container-funcionario').style.opacity = '1';
+            }
+        }
+
+        function handleAditivos() {
+            const inputAditivo = document.querySelector('input[name="aditivo"]:checked');
+            if(!inputAditivo) return;
+            const aditivo = inputAditivo.value;
+            
+            document.getElementById('bloco-irmaos').classList.toggle('show', aditivo === 'irmaos');
+            document.getElementById('nome-irmaos').required = (aditivo === 'irmaos');
+            
+            document.getElementById('bloco-funcionario').classList.toggle('show', aditivo === 'funcionario');
+            document.getElementById('func-valor-aeb').required = (aditivo === 'funcionario');
+            document.getElementById('func-valor-inst').required = (aditivo === 'funcionario');
+            document.getElementById('func-periodo-ano').required = (aditivo === 'funcionario');
+            
+            if(aditivo === 'funcionario') {
+                 document.querySelector('input[name="func_declaracao"]').required = true;
+            } else {
+                 document.querySelectorAll('input[name="func_declaracao"]').forEach(r=>r.required=false);
+            }
+        }
+
+        function handleDocumentoAvulso() {
+            const doc = document.getElementById('avulso-documento').value;
+            
+            ['passe', 'irmaos', 'funcionario', 'rescisao', 'cancelamento-aditivos', 'endereco'].forEach(b => {
+                const el = document.getElementById(`avulso-bloco-${b}`);
+                if (el) el.classList.remove('show');
+            });
+            document.getElementById('avulso-passe-qtd').required = false;
+            document.getElementById('avulso-nome-irmao').required = false;
+            document.querySelectorAll('#avulso-bloco-funcionario input').forEach(i => i.required = false);
+            
+            document.getElementById('avulso-cep').required = false;
+            document.getElementById('avulso-rua').required = false;
+            document.getElementById('avulso-numero').required = false;
+            document.getElementById('avulso-bairro').required = false;
+
+            if(doc === 'Aditivo-Passe') {
+                document.getElementById('avulso-bloco-passe').classList.add('show');
+                document.getElementById('avulso-passe-qtd').required = true;
+            } else if (doc === 'Aditivo-Irmaos') {
+                document.getElementById('avulso-bloco-irmaos').classList.add('show');
+                document.getElementById('avulso-nome-irmao').required = true;
+            } else if (doc === 'Aditivo-Funcionario') {
+                document.getElementById('avulso-bloco-funcionario').classList.add('show');
+                document.querySelector('input[name="avulso_func_declaracao"]').required = true;
+                ['inst', 'curso', 'periodo', 'valoraeb', 'valorinst'].forEach(f => {
+                    document.getElementById(`avulso-func-${f}`).required = true;
+                });
+            } else if (doc === 'Termo-Rescisao') {
+                document.getElementById('avulso-bloco-rescisao').classList.add('show');
+                document.getElementById('avulso-bloco-endereco').classList.add('show');
+                document.getElementById('avulso-cep').required = true;
+                document.getElementById('avulso-rua').required = true;
+                document.getElementById('avulso-numero').required = true;
+                document.getElementById('avulso-bairro').required = true;
+            } else if (doc === 'Termo-Cancelamento-Aditivos') {
+                document.getElementById('avulso-bloco-cancelamento-aditivos').classList.add('show');
+                document.getElementById('avulso-bloco-endereco').classList.add('show');
+                document.getElementById('avulso-cep').required = true;
+                document.getElementById('avulso-rua').required = true;
+                document.getElementById('avulso-numero').required = true;
+                document.getElementById('avulso-bairro').required = true;
+            }
+        }
+
+        // Função INTOCÁVEL conforme solicitação do usuário
+        function coletarDadosFormulario(context) {
+            let d = { context };
+            if (context === 'cadastro') {
+                d.isNovo = document.querySelector('input[name="tipo_vinculo"]:checked')?.value === 'novo';
+                d.isMaior = document.getElementById('maioridade')?.value === 'sim';
+                d.nome = document.getElementById('cad-nome')?.value || '';
+                d.tipoDoc = document.querySelector('input[name="tipo_doc"]:checked')?.value || 'rg_cpf';
+                
+                // Limpeza estrita de pontuação
+                d.cpf = (document.getElementById('cad-cpf')?.value || '').replace(/[.-]/g, '');
+                d.rg = (document.getElementById('cad-rg')?.value || '').replace(/[.-]/g, '');
+                d.nomeResp = document.getElementById('nome-responsavel')?.value || '';
+                d.rgResp = (document.getElementById('rg-responsavel')?.value || '').replace(/[.-]/g, '');
+                
+                d.rua = document.getElementById('cad-rua')?.value || '';
+                d.num = document.getElementById('cad-numero')?.value || '';
+                d.complemento = document.getElementById('cad-complemento')?.value || '';
+                d.bairro = document.getElementById('cad-bairro')?.value || '';
+                d.cep = document.getElementById('cad-cep')?.value || '';
+                d.cidade = document.getElementById('cad-cidade')?.value || 'Batatais (SP)';
+                d.email = document.getElementById('cad-email')?.value || '';
+                d.celular = document.getElementById('cad-celular')?.value || '';
+                d.tel = document.getElementById('cad-tel')?.value || '';
+
+                d.instituicao = document.getElementById('cad-instituicao')?.value || '';
+                d.destino = document.getElementById('cad-destino')?.value || '';
+                d.curso = document.getElementById('cad-curso')?.value || '';
+                d.matricula = document.getElementById('cad-matricula')?.value || '';
+                d.periodo = document.getElementById('cad-periodo')?.value || '';
+                d.ingresso = document.getElementById('cad-ingresso')?.value || '';
+                d.conclusao = document.getElementById('cad-conclusao')?.value || '';
+
+                d.modalidade = document.querySelector('input[name="modalidade"]:checked')?.value || 'associativo';
+                d.passeDias = document.getElementById('passe-dias')?.value || '';
+                d.passeQuais = document.getElementById('passe-quais-dias')?.value || '';
+                
+                d.aditivo = document.querySelector('input[name="aditivo"]:checked')?.value || 'nenhum';
+                d.nomeIrmao = document.getElementById('nome-irmaos')?.value || '';
+                
+                d.funcDeclaracao = document.querySelector('input[name="func_declaracao"]:checked')?.value || '';
+                d.funcValorAeb = document.getElementById('func-valor-aeb')?.value || '';
+                d.funcValorInst = document.getElementById('func-valor-inst')?.value || '';
+                d.funcPeriodo = document.getElementById('func-periodo-ano')?.value || '';
+                d.funcInst = document.getElementById('func-inst')?.value || '';
+                d.funcCurso = document.getElementById('func-curso')?.value || '';
+                
+                d.fotoBase64 = croppedImageData;
+            } else {
+                d.isMaior = document.getElementById('maioridade-avulso')?.value === 'sim';
+                d.tipoDoc = document.querySelector('input[name="tipo_doc_avulso"]:checked')?.value || 'rg_cpf';
+                d.nome = document.getElementById('avulso-nome')?.value || '';
+                
+                // Limpeza estrita de pontuação
+                d.cpf = (document.getElementById('avulso-cpf')?.value || '').replace(/[.-]/g, '');
+                d.rg = (document.getElementById('avulso-rg')?.value || '').replace(/[.-]/g, ''); 
+                d.nomeResp = document.getElementById('avulso-nome-resp')?.value || '';
+                d.rgResp = (document.getElementById('avulso-rg-resp')?.value || '').replace(/[.-]/g, '');
+                
+                d.rua = document.getElementById('avulso-rua')?.value || '';
+                d.num = document.getElementById('avulso-numero')?.value || '';
+                d.complemento = document.getElementById('avulso-complemento')?.value || '';
+                d.bairro = document.getElementById('avulso-bairro')?.value || '';
+                d.cep = document.getElementById('avulso-cep')?.value || '';
+                d.cidade = document.getElementById('avulso-cidade')?.value || 'Batatais (SP)';
+
+                d.passeDias = document.getElementById('avulso-passe-qtd')?.value || '';
+                d.nomeIrmao = document.getElementById('avulso-nome-irmao')?.value || '';
+                
+                d.funcDeclaracao = document.querySelector('input[name="avulso_func_declaracao"]:checked')?.value || '';
+                d.instituicao = document.getElementById('avulso-func-inst')?.value || '';
+                d.curso = document.getElementById('avulso-func-curso')?.value || '';
+                d.funcPeriodo = document.getElementById('avulso-func-periodo')?.value || '';
+                d.funcValorAeb = document.getElementById('avulso-func-valoraeb')?.value || '';
+                d.funcValorInst = document.getElementById('avulso-func-valorinst')?.value || '';
+                
+                d.tipoRescisao = document.querySelector('input[name="tipo_rescisao"]:checked')?.value || '';
+                d.condicaoAviso = document.querySelector('input[name="condicao_aviso"]:checked')?.value || '';
+                d.aditivoCancelado = document.querySelector('input[name="aditivo_cancelado"]:checked')?.value || '';
+            }
+
+            d.nomeAssinatura = d.isMaior ? d.nome : d.nomeResp;
+            d.rgAssinatura = d.isMaior ? (d.rg || d.cpf) : d.rgResp;
+
+            return d;
+        }
+
+        // --- REFATORAÇÃO: GERAR PDF COM PDFMAKE E ROTEAMENTO TEMPLATES.JS ---
+        async function gerarPDF(event, context) {
+            event.preventDefault();
+            
+            Swal.fire({
+                title: 'Gerando Documentos',
+                html: 'Aguarde. Processando templates e gerando arquivos...',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading() }
+            });
+
+            try {
+                let listaDocsGerar = [];
+                let dados = coletarDadosFormulario(context);
+
+                // Montagem da fila de processamento original preservada
+                if (context === 'cadastro') {
+                    if (dados.isNovo && !dados.fotoBase64) {
+                        Swal.fire('Atenção', 'Você precisa confirmar o corte da foto 3x4 antes de gerar o cadastro.', 'warning');
+                        return;
+                    }
+
+                    listaDocsGerar.push({ tipo: dados.isNovo ? 'ficha_cadastro' : 'ficha_recadastro', dados });
+                    listaDocsGerar.push({ tipo: 'base', dados });
+                    
+                    if (dados.modalidade !== 'associativo') listaDocsGerar.push({ tipo: 'transporte', dados });
+                    if (dados.modalidade === 'passe') listaDocsGerar.push({ tipo: 'passe', dados });
+                    if (dados.aditivo === 'irmaos') listaDocsGerar.push({ tipo: 'irmaos', dados });
+                    if (dados.aditivo === 'funcionario') listaDocsGerar.push({ tipo: 'funcionario', dados });
+                } else {
+                    const docSelecionado = document.getElementById('avulso-documento').value;
+                    const mapeamentoDocAvulso = {
+                        'Contrato-Base': 'base',
+                        'Aditivo-Transporte': 'transporte',
+                        'Aditivo-Passe': 'passe',
+                        'Aditivo-Irmaos': 'irmaos',
+                        'Aditivo-Funcionario': 'funcionario',
+                        'Termo-Rescisao': 'rescisao',
+                        'Termo-Cancelamento-Aditivos': 'cancelamento_aditivos'
+                    };
+                    listaDocsGerar.push({ tipo: mapeamentoDocAvulso[docSelecionado], dados });
+                }
+
+                // Dicionário mapeando o "tipo" do documento para as funções no DocumentosAEB
+                const metodosTemplate = {
+                    'ficha_cadastro': 'gerarFichaCadastro',
+                    'ficha_recadastro': 'gerarFichaRecadastro',
+                    'base': 'gerarContratoBase',
+                    'transporte': 'gerarAditivoTransporte',
+                    'passe': 'gerarAditivoPasse',
+                    'irmaos': 'gerarAditivoIrmaos',
+                    'funcionario': 'gerarAditivoFuncionario',
+                    'rescisao': 'gerarRescisao',
+                    'cancelamento_aditivos': 'gerarCancelamentoAditivos'
+                };
+
+                for (let i = 0; i < listaDocsGerar.length; i++) {
+                    const tipo = listaDocsGerar[i].tipo;
+                    const dadosDoc = listaDocsGerar[i].dados;
+                    const metodoDocumento = metodosTemplate[tipo];
+
+                    let docDefinition;
+                    
+                    // Roteamento inteligente para o templates.js
+                    if (typeof DocumentosAEB !== 'undefined' && DocumentosAEB[metodoDocumento]) {
+                        docDefinition = DocumentosAEB[metodoDocumento](dadosDoc);
+                    } else {
+                        // Documento protótipo temporário caso os outros métodos não existam ainda no templates.js
+                        docDefinition = {
+                            content: [
+                                { text: `Documento: ${tipo.toUpperCase()}`, style: 'header', margin: [0, 0, 0, 20] },
+                                { text: `O template do documento '${tipo}' está pendente de migração para o arquivo templates.js.` }
+                            ],
+                            defaultStyle: { fontSize: 12 }
+                        };
+                    }
+
+                    // Gera o PDF via pdfMake e retorna o buffer nativo (que funciona como array de bytes para o blob)
+                    await new Promise((resolve) => {
+                        pdfMake.createPdf(docDefinition).getBuffer(async (buffer) => {
+                            await dispararDownload(buffer, tipo, dadosDoc);
+                            resolve();
+                        });
+                    });
+
+                    if(i < listaDocsGerar.length - 1) {
+                        await new Promise(r => setTimeout(r, 800)); 
+                    }
+                }
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Arquivos Gerados!',
+                    text: 'Seus documentos dinâmicos foram processados e baixados com sucesso.',
+                    confirmButtonColor: '#3CA3DB'
+                });
+
+            } catch (error) {
+                console.error(error);
+                Swal.fire({
+                    icon: 'error', title: 'Falha na Geração', text: 'Ocorreu um erro estrutural ao gerar os documentos com PDFMake.',
+                    confirmButtonColor: '#267da8'
+                });
+            }
+        }
+
+        // A função de download foi perfeitamente mantida, compatível com o Buffer gerado pelo pdfMake
+        async function dispararDownload(bytes, tipoTemplate, dadosObject) {
+            const blob = new Blob([bytes], { type: "application/pdf" });
+            
+            const baseNames = {
+                'ficha_cadastro': 'Ficha_de_Cadastro_2_2026',
+                'ficha_recadastro': 'Ficha_de_Recadastro_2_2026',
+                'base': '(GOV)_Contrato_Associados_base',
+                'transporte': '(GOV)_Aditivo_contratual_trasporte',
+                'passe': '(GOV)_Aditivo_Contratual_Passe',
+                'irmaos': '(GOV)_Aditivo_Contratual_Irmao(s)',
+                'funcionario': '(GOV)_Aditivo_Contratual_Funcionario_Publico',
+                'rescisao': 'Termo_de_Rescisao',
+                'cancelamento_aditivos': 'Termo_de_Cancelamento_de_Aditivos'
+            };
+            
+            const baseName = baseNames[tipoTemplate] || tipoTemplate;
+            const docNum = (dadosObject.cpf || '').replace(/\D/g, ''); 
+            const safeName = (dadosObject.nome || '').trim().replace(/\s+/g, '_');
+            
+            const defaultFileName = `${baseName}_${docNum}_${safeName}.pdf`;
+            
+            try {
+                if ('showSaveFilePicker' in window) {
+                    const handle = await window.showSaveFilePicker({
+                        suggestedName: defaultFileName,
+                        types: [{
+                            description: 'Documento PDF',
+                            accept: { 'application/pdf': ['.pdf'] },
+                        }],
+                    });
+                    const writable = await handle.createWritable();
+                    await writable.write(blob);
+                    await writable.close();
+                    return; 
+                }
+            } catch (err) {
+                if (err.name === 'AbortError') return;
+                console.warn("API de seleção de arquivo não suportada ou bloqueada. Usando fallback.", err);
+            }
+
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = defaultFileName;
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(link.href);
+        }
+    </script>
+</body>
+</html>
+```eof
+
