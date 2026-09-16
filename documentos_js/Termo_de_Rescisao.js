@@ -20,17 +20,22 @@ window.DocumentosAEB.gerarRescisao = function(dados) {
       { text: '3. DECLARAÇÕES E CONDIÇÕES DE CANCELAMENTO:', bold: true, margin: [0, 0, 0, 5] },
       { text: 'I. Estou ciente de que a solicitação de cancelamento exige um aviso prévio mínimo de 15 (quinze) dias, formalmente protocolado, conforme a Cláusula 7ª do Contrato-Base e a Cláusula 7ª do Aditivo de Transporte.\nII. Tenho ciência de que o aviso prévio de 15 (quinze) dias possui caráter administrativo e financeiro para cobrir os compromissos previamente assumidos pela Associação. Sendo assim, são integralmente devidas as mensalidades ou proporções correspondentes a este período de 15 dias em qualquer hipótese de cancelamento, independentemente da efetiva utilização física do transporte, a qual poderá ser suspensa de forma antecipada pela AEB exclusivamente para a organização operacional das rotas.\nIII. Reconheço que a presente rescisão não me isenta da responsabilidade de quitar eventuais débitos, taxas ou mensalidades (vencidas ou vincendas) correspondentes ao período de prestação do serviço e do aviso prévio, independentemente de a data de vencimento ocorrer após o efetivo encerramento do vínculo.\nIV. A AEB e o(a) Associado(a) dão-se mútua quitação apenas em relação às obrigações efetivamente pagas e compensadas até a presente data, restando ressalvado à Associação o direito de promover a cobrança extrajudicial ou judicial de quaisquer valores remanescentes em aberto.\nV. Vedação de Retroatividade: A contagem do aviso prévio de 15 (quinze) dias tem início estritamente na data de assinatura e protocolo deste termo, sendo expressamente vedada a retroatividade do cancelamento sob qualquer alegação de não utilização física anterior do transporte, uma vez que a vaga permaneceu reservada e à disposição.\nVI. Natureza do Rateio e Estornos: Reconheço que o serviço de transporte opera sob o regime de rateio de custos fixos mensais de frota. Sendo assim, declaro ciência de que não há previsão estatutária ou contratual para devolução, estorno ou crédito de dias fracionados relativos a ciclos de faturamento já iniciados, faturados ou pagos.', margin: [0, 0, 0, 15], alignment: 'justify' },
 
-      { text: 'Os dados informados nesta ficha serão tratados pela AEB para fins de gestão associativa e operação do transporte, podendo ser compartilhados com a transportadora e o Município, nos termos da cláusula de Proteção de Dados do Contrato-Base e da Lei 13.709/2018.', margin: [0, 0, 0, 10], fontSize: 10, alignment: 'justify' },
-      
-      { text: 'As Partes concordam que este instrumento será assinado de forma eletrônica, utilizando-se o portal gov.br (níveis Prata ou Ouro), nos termos do art. 10, § 2º, da Medida Provisória nº 2.200-2/2001 e da Lei nº 14.063/2020. E, por estarem assim justas e contratadas, declaram reconhecer expressamente a validade, integridade, autenticidade e eficácia jurídica do presente documento, bem como sua força executiva, o qual constituirá um único arquivo digital original para todos os fins de direito, dispensando-se a emissão ou assinatura de vias físicas.', margin: [0, 0, 0, 80], fontSize: 10, alignment: 'justify' },
-
       {
-        columns: [
-          { text: '_____________________________________\nAssociado(a)\n\nNOME: ' + (dados.isMaior ? dados.nome : '') + '\nRG/CIN: ' + (dados.isMaior ? (dados.rg || dados.cpf) : ''), alignment: 'center' },
-          { text: '_____________________________________\nPai ou Responsável\n\nNOME: ' + (!dados.isMaior ? dados.nomeResp : '') + '\nRG/CIN: ' + (!dados.isMaior ? dados.rgResp : ''), alignment: 'center' }
-        ]
-      },
-      { text: '_____________________________________\nAssociação dos Estudantes de Batatais', alignment: 'center', margin: [0, 80, 0, 0] }
+        stack: [
+          { text: 'Os dados informados nesta ficha serão tratados pela AEB para fins de gestão associativa e operação do transporte, podendo ser compartilhados com a transportadora e o Município, nos termos da cláusula de Proteção de Dados do Contrato-Base e da Lei 13.709/2018.', margin: [0, 0, 0, 10], fontSize: 10, alignment: 'justify' },
+          
+          { text: 'As Partes concordam que este instrumento será assinado de forma eletrônica, utilizando-se o portal gov.br (níveis Prata ou Ouro), nos termos do art. 10, § 2º, da Medida Provisória nº 2.200-2/2001 e da Lei nº 14.063/2020. E, por estarem assim justas e contratadas, declaram reconhecer expressamente a validade, integridade, autenticidade e eficácia jurídica do presente documento, bem como sua força executiva, o qual constituirá um único arquivo digital original para todos os fins de direito, dispensando-se a emissão ou assinatura de vias físicas.', margin: [0, 0, 0, 80], fontSize: 10, alignment: 'justify' },
+
+          {
+            columns: [
+              { text: '_____________________________________\nAssociado(a)\n\nNOME: ' + (dados.isMaior ? dados.nome : '') + '\nRG/CIN: ' + (dados.isMaior ? (dados.rg || dados.cpf) : ''), alignment: 'center' },
+              { text: '_____________________________________\nPai ou Responsável\n\nNOME: ' + (!dados.isMaior ? dados.nomeResp : '') + '\nRG/CIN: ' + (!dados.isMaior ? dados.rgResp : ''), alignment: 'center' }
+            ]
+          },
+          { text: '_____________________________________\nAssociação dos Estudantes de Batatais', alignment: 'center', margin: [0, 80, 0, 0] }
+        ],
+        unbreakable: true // A MÁGICA ACONTECE AQUI
+      }
     ],
     defaultStyle: { fontSize: 11 }
   };
