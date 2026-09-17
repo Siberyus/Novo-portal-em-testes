@@ -39,11 +39,16 @@ window.DocumentosAEB.gerarContratoBase = function(dados) {
           { text: [{ text: 'CLÁUSULA 13ª - ASSINATURA ELETRÔNICA:', bold: true, color: '#267da8' }, ' As Partes concordam que este instrumento será assinado de forma eletrônica (portal gov.br), nos termos do art. 10, § 2º, da MP nº 2.200-2/2001 e Lei nº 14.063/2020. Constituirá um único arquivo digital original, dispensando-se assinatura física.'], style: 'clause', margin: [0, 0, 0, 80] },
           {
             columns: [
-              { text: '_____________________________________\nAssociado(a)\n\nNOME: ' + (dados.isMaior ? dados.nome : '') + '\nRG/CIN: ' + (dados.isMaior ? docAssinatura : ''), style: 'assinatura' },
-              { text: '_____________________________________\nPai ou Responsável\n\nNOME: ' + (!dados.isMaior ? dados.nomeResp : '') + '\nRG/CIN: ' + (!dados.isMaior ? docAssinatura : ''), style: 'assinatura' }
-            ]
-          },
-          { text: '_____________________________________\nAssociação dos Estudantes de Batatais', style: 'assinatura', margin: [0, 80, 0, 0] }
+              // Coluna do Associado (Sempre exibe o nome do estudante e o documento dele)
+              { 
+                text: '_____________________________________\nAssociado(a)\n\nNOME: ' + dados.nome + '\nRG/CIN: ' + (dados.tipoDoc === 'cin' ? dados.cpf : dados.rg), 
+                style: 'assinatura' 
+              },
+              // Coluna do Responsável (Exibe o nome e doc do responsável caso seja menor, ou fica limpo se for maior)
+              { 
+                text: '_____________________________________\nPai ou Responsável\n\nNOME: ' + (!dados.isMaior ? dados.nomeResp : '') + '\nRG/CIN: ' + (!dados.isMaior ? dados.rgResp : ''), 
+                style: 'assinatura' 
+              }
         ]
       }
     ],
