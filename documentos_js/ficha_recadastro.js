@@ -1,53 +1,50 @@
 window.DocumentosAEB = window.DocumentosAEB || {};
 window.DocumentosAEB.gerarFichaRecadastro = function(dados) {
-  let linhaIdentificacao;
-  let docAssinatura = dados.tipoDoc === 'cin' ? dados.cpf : dados.rg;
-  
-  if (dados.tipoDoc === 'cin') {
-      linhaIdentificacao = [ { text: 'CIN nº: ', bold: true }, dados.cpf ];
-  } else {
-      linhaIdentificacao = [ { text: 'CPF nº: ', bold: true }, dados.cpf, { text: '    RG nº: ', bold: true }, dados.rg ];
-  }
-  if (!dados.isMaior) docAssinatura = dados.rgResp;
+  let documentoEstudante = dados.tipoDoc === 'cin' ? (dados.cpf || 'Não informado') : (dados.rg || dados.cpf || 'Não informado');
+  let documentoResponsavel = dados.rgResp || 'Não informado';
+  let linhaIdentificacao = dados.tipoDoc === 'cin' ? [ { text: 'CIN nº: ', bold: true }, dados.cpf || '' ] : [ { text: 'CPF nº: ', bold: true }, dados.cpf || '', { text: '   RG nº: ', bold: true }, dados.rg || '' ];
 
   return {
     pageMargins: [50, 40, 50, 40],
     content: [
-      { text: 'FICHA DE RECADASTRAMENTO AEB\n2º SEMESTRE DE 2026', style: 'header', margin: [0, 20, 0, 20] },
+      { text: 'FICHA DE RECADASTRAMENTO AEB – 2º SEMESTRE DE 2026', style: 'header', margin: [0, 20, 0, 20] },
       
       { text: 'DADOS DO(A) ASSOCIADO(A)', style: 'sectionTitle' },
-      { text: [ { text: 'Nome: ', bold: true }, dados.nome ], style: 'lineItem' },
+      { text: [ { text: 'Nome: ', bold: true }, dados.nome || '' ], style: 'lineItem' },
       { text: linhaIdentificacao, style: 'lineItem' },
-      { text: [ { text: 'Endereço: ', bold: true }, `${dados.rua}, ${dados.num} - ${dados.complemento ? dados.complemento + ' - ' : ''}${dados.bairro}` ], style: 'lineItem' },
-      { text: [ { text: 'CEP: ', bold: true }, `${dados.cep}    `, { text: 'Cidade: ', bold: true }, dados.cidade ], style: 'lineItem' },
-      { text: [ { text: 'E-mail: ', bold: true }, dados.email ], style: 'lineItem' },
-      { text: [ { text: 'Tel. Residencial: ', bold: true }, `${dados.tel}    `, { text: 'Tel. Celular (WhatsApp): ', bold: true }, dados.celular ], style: 'lineItem', margin: [0, 0, 0, 15] },
+      { text: [ { text: 'Endereço: ', bold: true }, `${dados.rua || ''}, ${dados.num || ''} - ${dados.complemento ? dados.complemento + ' - ' : ''}${dados.bairro || ''}` ], style: 'lineItem' },
+      { text: [ { text: 'CEP: ', bold: true }, `${dados.cep || ''}   `, { text: 'Cidade: ', bold: true }, dados.cidade || '' ], style: 'lineItem' },
+      { text: [ { text: 'E-mail: ', bold: true }, dados.email || '' ], style: 'lineItem' },
+      { text: [ { text: 'Tel. Residencial: ', bold: true }, `${dados.tel || ''}   `, { text: 'Tel. Celular: ', bold: true }, dados.celular || '' ], style: 'lineItem', margin: [0, 0, 0, 15] },
 
       { text: 'INSTITUIÇÃO DE ENSINO', style: 'sectionTitle' },
-      { text: [ { text: 'Nome da Instituição: ', bold: true }, dados.instituicao ], style: 'lineItem' },
-      { text: [ { text: 'Destino: ', bold: true }, `(${dados.destino === 'Franca-SP' ? 'X' : '  '}) Franca (SP)    (${dados.destino === 'Ribeirao Preto-SP' ? 'X' : '  '}) Ribeirão Preto (SP)` ], style: 'lineItem' },
-      { text: [ { text: 'Curso: ', bold: true }, dados.curso ], style: 'lineItem' },
-      { text: [ { text: 'Nº de Matrícula (RA): ', bold: true }, dados.matricula ], style: 'lineItem' },
+      { text: [ { text: 'Nome da Instituição: ', bold: true }, dados.instituicao || '' ], style: 'lineItem' },
+      { text: [ { text: 'Destino: ', bold: true }, `(${dados.destino === 'Franca-SP' ? 'X' : '  '}) Franca (SP)   (${dados.destino === 'Ribeirao Preto-SP' ? 'X' : '  '}) Ribeirão Preto (SP)` ], style: 'lineItem' },
+      { text: [ { text: 'Curso: ', bold: true }, dados.curso || '' ], style: 'lineItem' },
+      { text: [ { text: 'Nº de Matrícula: ', bold: true }, dados.matricula || '' ], style: 'lineItem' },
       { text: [ { text: 'Período: ', bold: true }, `(${dados.periodo === 'Diurno' ? 'X' : '  '}) Diurno   (${dados.periodo === 'Noturno' ? 'X' : '  '}) Noturno   (${dados.periodo === 'Vespertino' ? 'X' : '  '}) Vespertino   (${dados.periodo === 'Integral' ? 'X' : '  '}) Integral` ], style: 'lineItem' },
-      { text: [ { text: 'Data de Ingresso: ', bold: true }, `${dados.ingresso}    `, { text: 'Formação Estimada: ', bold: true }, dados.conclusao ], style: 'lineItem', margin: [0, 0, 0, 15] },
+      { text: [ { text: 'Data de Ingresso: ', bold: true }, `${dados.ingresso || ''}   `, { text: 'Data Estimada de Formação: ', bold: true }, dados.conclusao || '' ], style: 'lineItem', margin: [0, 0, 0, 15] },
 
-      { text: 'MODALIDADES DE TRANSPORTE (Assinaladas)', style: 'sectionTitle' },
+      { text: 'MODALIDADES DE TRANSPORTE (Marque as opções aplicáveis)', style: 'sectionTitle' },
       { text: `(${dados.modalidade === 'integral' ? 'X' : '  '}) Integral (Todos os dias da semana)`, style: 'lineItem' },
-      { text: `(${dados.modalidade === 'passe' ? 'X' : '  '}) Passe de Transporte      (${dados.passeDias == '1' ? 'X' : '  '}) 1 dia na semana   (${dados.passeDias == '2' ? 'X' : '  '}) 2 dias na semana`, style: 'lineItem' },
-      { text: `      Dias da semana a utilizar: ${dados.passeQuais}`, style: 'lineItem' },
-      { text: `(${dados.aditivo === 'irmaos' ? 'X' : '  '}) Desconto para Irmãos(ãs) — Nome(s): ${dados.nomeIrmao}`, style: 'lineItem' },
+      { text: `(${dados.modalidade === 'passe' ? 'X' : '  '}) Passe de Transporte      (${dados.passeDias == '1' ? 'X' : '  '}) 1 (um) dia na semana   (${dados.passeDias == '2' ? 'X' : '  '}) 2 (dois) dias na semana`, style: 'lineItem' },
+      { text: `      Dias da semana a utilizar: ${dados.passeQuais || ''}`, style: 'lineItem' },
+      { text: `(${dados.aditivo === 'irmaos' ? 'X' : '  '}) Desconto para Irmãos(ãs)`, style: 'lineItem' },
+      { text: `      Nome(s) do(s) irmão(s): ${dados.nomeIrmao || ''}`, style: 'lineItem' },
       { text: `(${dados.aditivo === 'funcionario' ? 'X' : '  '}) Isenção para Funcionário Público Municipal de Batatais (SP)`, style: 'lineItem' },
       { text: `(${dados.modalidade === 'associativo' ? 'X' : '  '}) Apenas benefícios associativos (não utiliza transporte)`, style: 'lineItem', margin: [0, 0, 0, 15] },
 
-      { text: 'DOCUMENTAÇÃO E ANEXOS (Conferência)', style: 'sectionTitle' },
-      { text: `( X ) Cópia do Comprovante de Matrícula\n( X ) Contrato-Base de Adesão à AEB`, style: 'lineItem', margin: [0, 0, 0, 5] },
-      { text: 'Anexos Específicos (Assinalados se aplicável):', bold: true, fontSize: 10, margin: [0, 5, 0, 3] },
-      { text: `(${dados.modalidade === 'integral' ? 'X' : '  '}) Aditivo Contratual – Transporte Estudantil\n(${dados.modalidade === 'passe' ? 'X' : '  '}) Aditivo Contratual – Modalidade Passe\n(${dados.aditivo === 'irmaos' ? 'X' : '  '}) Aditivo Contratual – Desconto para Irmãos\n(${dados.aditivo === 'funcionario' ? 'X' : '  '}) Aditivo Contratual – Isenção para Funcionário Público\n(${['passe', 'irmaos', 'funcionario'].includes(dados.modalidade) || ['passe', 'irmaos', 'funcionario'].includes(dados.aditivo) ? 'X' : '  '}) Documentação comprobatória específica`, style: 'lineItem', margin: [0, 0, 0, 15] },
+      { text: 'DOCUMENTAÇÃO E ANEXOS (Para uso da AEB)', style: 'sectionTitle' },
+      { text: 'Assinale os documentos entregues e assinados conforme a situação do(a) associado(a):\nObrigatórios para todos:', style: 'lineItem' },
+      { text: `( X ) Cópia do Comprovante de Matrícula atualizado\n( X ) Contrato-Base de Adesão à AEB`, style: 'lineItem', margin: [0, 0, 0, 5] },
+      { text: 'Conforme a modalidade (Assinalar se aplicável):', style: 'lineItem' },
+      { text: `(${dados.modalidade === 'integral' ? 'X' : '  '}) Aditivo Contratual – Transporte Estudantil (Regras Operacionais e Financeiras)\n(${dados.modalidade === 'passe' ? 'X' : '  '}) Aditivo Contratual – Modalidade Passe\n(${dados.aditivo === 'irmaos' ? 'X' : '  '}) Aditivo Contratual – Desconto para Irmãos\n(${dados.aditivo === 'funcionario' ? 'X' : '  '}) Aditivo Contratual – Isenção para Funcionário Público\n(${['passe', 'irmaos', 'funcionario'].includes(dados.modalidade) || ['passe', 'irmaos', 'funcionario'].includes(dados.aditivo) ? 'X' : '  '}) Documentação comprobatória específica (Passe, Irmãos ou Funcionário Público)`, style: 'lineItem', margin: [0, 0, 0, 15] },
 
       {
         unbreakable: true,
         stack: [
-          { text: 'Os dados informados nesta ficha serão tratados pela AEB para fins de gestão associativa e operação do transporte, podendo ser compartilhados com a transportadora e o Município, nos termos da cláusula de Proteção de Dados do Contrato-Base e da Lei 13.709/2018.', style: 'clause' },
+          { text: 'DECLARAÇÃO:', bold: true, margin: [0, 0, 0, 5] },
+          { text: 'Declaro, para todos os fins legais, que as informações contidas nesta ficha de recadastramento e os documentos anexos são verdadeiros e estão atualizados. Estou ciente de que a manutenção da condição de associado(a) e os benefícios relativos às modalidades específicas dependem da entrega e assinatura dos respectivos Aditivos e Contratos aplicáveis à minha situação.\n\nOs dados informados nesta ficha serão tratados pela AEB para fins de gestão associativa e operação do transporte, podendo ser compartilhados com a transportadora e o Município, nos termos da cláusula de Proteção de Dados do Contrato-Base e da Lei 13.709/2018.', style: 'clause' },
           { text: 'As Partes concordam que este instrumento será assinado de forma eletrônica, utilizando-se o portal gov.br (níveis Prata ou Ouro), nos termos do art. 10, § 2º, da Medida Provisória nº 2.200-2/2001 e da Lei nº 14.063/2020. E, por estarem assim justas e contratadas, declaram reconhecer expressamente a validade, integridade, autenticidade e eficácia jurídica do presente documento, bem como sua força executiva, o qual constituirá um único arquivo digital original para todos os fins de direito, dispensando-se a emissão ou assinatura de vias físicas.', style: 'clause', margin: [0, 0, 0, 80] },
           {
             columns: [
@@ -64,7 +61,7 @@ window.DocumentosAEB.gerarFichaRecadastro = function(dados) {
         header: { fontSize: 14, bold: true, alignment: 'center' },
         sectionTitle: { fontSize: 12, bold: true, color: '#267da8', margin: [0, 15, 0, 8] },
         lineItem: { margin: [0, 0, 0, 4] },
-        clause: { margin: [0, 0, 0, 10], fontSize: 10 },
+        clause: { margin: [0, 0, 0, 10] },
         assinatura: { fontSize: 10, alignment: 'center' }
     }
   };
