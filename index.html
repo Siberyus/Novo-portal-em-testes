@@ -990,8 +990,8 @@
                 d.tipoDoc = document.querySelector('input[name="tipo_doc"]:checked')?.value || 'rg_cpf';
                 
                 // Limpeza estrita de pontuação
-                d.cpf = (document.getElementById('cad-cpf')?.value || '').replace(/[.-]/g, '');
-                d.rg = (document.getElementById('cad-rg')?.value || '').replace(/[.-]/g, '');
+                d.cpf = document.getElementById('cad-cpf')?.value || '';
+                d.rg = document.getElementById('cad-rg')?.value || '';
                 d.nomeResp = document.getElementById('nome-responsavel')?.value || '';
                 d.rgResp = (document.getElementById('rg-responsavel')?.value || '').replace(/[.-]/g, '');
                 
@@ -1034,8 +1034,8 @@
                 d.nome = document.getElementById('avulso-nome')?.value || '';
                 
                 // Limpeza estrita de pontuação
-                d.cpf = (document.getElementById('avulso-cpf')?.value || '').replace(/[.-]/g, '');
-                d.rg = (document.getElementById('avulso-rg')?.value || '').replace(/[.-]/g, ''); 
+                d.cpf = document.getElementById('cad-cpf')?.value || '';
+                d.rg = document.getElementById('cad-rg')?.value || ''; 
                 d.nomeResp = document.getElementById('avulso-nome-resp')?.value || '';
                 d.rgResp = (document.getElementById('avulso-rg-resp')?.value || '').replace(/[.-]/g, '');
                 
