@@ -27,7 +27,7 @@
 
     <script src="https://unpkg.com/lucide@latest"></script>
     
-    <!-- Dependências do PDFMake (Substituindo o pdf-lib) -->
+    <!-- Dependências do PDFMake -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/pdfmake.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/vfs_fonts.js"></script>
     
@@ -603,8 +603,8 @@
         </div>
     </div>
 
-    <!-- Importação dos Documentos Dinâmicos da AEB -->
-    <script src="documentos_js/termo_de_Rescisao.js"></script>
+    <!-- Scripts de Documentos AEB -->
+    <script src="documentos_js/Termo_de_Rescisao.js"></script>
     <script src="documentos_js/contrato_base.js"></script>
     <script src="documentos_js/aditivo_transporte.js"></script>
     <script src="documentos_js/cancelamento_aditivos.js"></script>
@@ -844,7 +844,7 @@
 
             blocoRg.classList.toggle('hidden', isCIN);
             inputRg.required = !isCIN;
-            labelCpf.innerText = isCIN ? 'Número da CIN (CPF)' : 'CPF';
+            labelCpf.innerText = isCIN ? 'Número da CIN' : 'CPF';
             
             if (context === 'cadastro') {
                 blocoCpf.classList.toggle('sm:col-span-2', isCIN);
@@ -980,7 +980,7 @@
             }
         }
 
-        // Função INTOCÁVEL conforme solicitação do usuário
+        // FUNÇÃO DE COLETA CORRIGIDA: Mantém os traços/pontos nos documentos e separa corretamente o CIN do CPF/RG
         function coletarDadosFormulario(context) {
             let d = { context };
             if (context === 'cadastro') {
@@ -989,11 +989,11 @@
                 d.nome = document.getElementById('cad-nome')?.value || '';
                 d.tipoDoc = document.querySelector('input[name="tipo_doc"]:checked')?.value || 'rg_cpf';
                 
-                // Limpeza estrita de pontuação
+                // Mantém a formatação com pontuação digitada pelo usuário
                 d.cpf = document.getElementById('cad-cpf')?.value || '';
                 d.rg = document.getElementById('cad-rg')?.value || '';
                 d.nomeResp = document.getElementById('nome-responsavel')?.value || '';
-                d.rgResp = (document.getElementById('rg-responsavel')?.value || '').replace(/[.-]/g, '');
+                d.rgResp = document.getElementById('rg-responsavel')?.value || '';
                 
                 d.rua = document.getElementById('cad-rua')?.value || '';
                 d.num = document.getElementById('cad-numero')?.value || '';
@@ -1033,11 +1033,11 @@
                 d.tipoDoc = document.querySelector('input[name="tipo_doc_avulso"]:checked')?.value || 'rg_cpf';
                 d.nome = document.getElementById('avulso-nome')?.value || '';
                 
-                // Limpeza estrita de pontuação
-                d.cpf = document.getElementById('cad-cpf')?.value || '';
-                d.rg = document.getElementById('cad-rg')?.value || ''; 
+                // Mantém a formatação com pontuação digitada
+                d.cpf = document.getElementById('avulso-cpf')?.value || '';
+                d.rg = document.getElementById('avulso-rg')?.value || ''; 
                 d.nomeResp = document.getElementById('avulso-nome-resp')?.value || '';
-                d.rgResp = (document.getElementById('avulso-rg-resp')?.value || '').replace(/[.-]/g, '');
+                d.rgResp = document.getElementById('avulso-rg-resp')?.value || '';
                 
                 d.rua = document.getElementById('avulso-rua')?.value || '';
                 d.num = document.getElementById('avulso-numero')?.value || '';
@@ -1061,13 +1061,9 @@
                 d.aditivoCancelado = document.querySelector('input[name="aditivo_cancelado"]:checked')?.value || '';
             }
 
-            d.nomeAssinatura = d.isMaior ? d.nome : d.nomeResp;
-            d.rgAssinatura = d.isMaior ? (d.rg || d.cpf) : d.rgResp;
-
             return d;
         }
 
-        // --- REFATORAÇÃO: GERAR PDF COM PDFMAKE E ROTEAMENTO TEMPLATES.JS ---
         async function gerarPDF(event, context) {
             event.preventDefault();
             
@@ -1082,7 +1078,6 @@
                 let listaDocsGerar = [];
                 let dados = coletarDadosFormulario(context);
 
-                // Montagem da fila de processamento original preservada
                 if (context === 'cadastro') {
                     if (dados.isNovo && !dados.fotoBase64) {
                         Swal.fire('Atenção', 'Você precisa confirmar o corte da foto 3x4 antes de gerar o cadastro.', 'warning');
@@ -1110,7 +1105,6 @@
                     listaDocsGerar.push({ tipo: mapeamentoDocAvulso[docSelecionado], dados });
                 }
 
-                // Dicionário mapeando o "tipo" do documento para as funções no DocumentosAEB
                 const metodosTemplate = {
                     'ficha_cadastro': 'gerarFichaCadastro',
                     'ficha_recadastro': 'gerarFichaRecadastro',
@@ -1130,21 +1124,18 @@
 
                     let docDefinition;
                     
-                    // Roteamento inteligente para o templates.js
                     if (typeof DocumentosAEB !== 'undefined' && DocumentosAEB[metodoDocumento]) {
                         docDefinition = DocumentosAEB[metodoDocumento](dadosDoc);
                     } else {
-                        // Documento protótipo temporário caso os outros métodos não existam ainda no templates.js
                         docDefinition = {
                             content: [
                                 { text: `Documento: ${tipo.toUpperCase()}`, style: 'header', margin: [0, 0, 0, 20] },
-                                { text: `O template do documento '${tipo}' está pendente de migração para o arquivo templates.js.` }
+                                { text: `O template do documento '${tipo}' está pendente.` }
                             ],
                             defaultStyle: { fontSize: 12 }
                         };
                     }
 
-                    // Gera o PDF via pdfMake e retorna o buffer nativo (que funciona como array de bytes para o blob)
                     await new Promise((resolve) => {
                         pdfMake.createPdf(docDefinition).getBuffer(async (buffer) => {
                             await dispararDownload(buffer, tipo, dadosDoc);
@@ -1173,24 +1164,25 @@
             }
         }
 
-        // A função de download foi perfeitamente mantida, compatível com o Buffer gerado pelo pdfMake
+        // DOWNLOAD CORRIGIDO: Retirou os parênteses do GOV e limpa apenas para o nome do arquivo
         async function dispararDownload(bytes, tipoTemplate, dadosObject) {
             const blob = new Blob([bytes], { type: "application/pdf" });
             
             const baseNames = {
                 'ficha_cadastro': 'Ficha_de_Cadastro_2_2026',
                 'ficha_recadastro': 'Ficha_de_Recadastro_2_2026',
-                'base': '(GOV)_Contrato_Associados_base',
-                'transporte': '(GOV)_Aditivo_contratual_trasporte',
-                'passe': '(GOV)_Aditivo_Contratual_Passe',
-                'irmaos': '(GOV)_Aditivo_Contratual_Irmao(s)',
-                'funcionario': '(GOV)_Aditivo_Contratual_Funcionario_Publico',
+                'base': 'GOV_Contrato_Associados_base',
+                'transporte': 'GOV_Aditivo_contratual_trasporte',
+                'passe': 'GOV_Aditivo_Contratual_Passe',
+                'irmaos': 'GOV_Aditivo_Contratual_Irmao(s)',
+                'funcionario': 'GOV_Aditivo_Contratual_Funcionario_Publico',
                 'rescisao': 'Termo_de_Rescisao',
                 'cancelamento_aditivos': 'Termo_de_Cancelamento_de_Aditivos'
             };
             
             const baseName = baseNames[tipoTemplate] || tipoTemplate;
-            const docNum = (dadosObject.cpf || '').replace(/\D/g, ''); 
+            // Pega o número do documento independentemente de ser CPF ou CIN, limpando apenas para salvar o arquivo
+            const docNum = (dadosObject.tipoDoc === 'cin' ? dadosObject.cpf : (dadosObject.cpf || dadosObject.rg)).replace(/\D/g, ''); 
             const safeName = (dadosObject.nome || '').trim().replace(/\s+/g, '_');
             
             const defaultFileName = `${baseName}_${docNum}_${safeName}.pdf`;
@@ -1211,7 +1203,7 @@
                 }
             } catch (err) {
                 if (err.name === 'AbortError') return;
-                console.warn("API de seleção de arquivo não suportada ou bloqueada. Usando fallback.", err);
+                console.warn("API de seleção de arquivo não suportada. Usando fallback.", err);
             }
 
             const link = document.createElement('a');
@@ -1226,5 +1218,3 @@
     </script>
 </body>
 </html>
-```eof
-
