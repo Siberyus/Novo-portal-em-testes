@@ -37,10 +37,7 @@ window.DocumentosAEB.gerarContratoBase = function(dados) {
         {
         unbreakable: true,
         stack: [
-          // Texto final ou parágrafo de encerramento antes das assinaturas (ajuste a margem se necessário)
-          { text: 'As Partes concordam que este instrumento será assinado de forma eletrônica, utilizando-se o portal gov.br (níveis Prata ou Ouro), nos termos do art. 10, § 2º, da Medida Provisória nº 2.200-2/2001 e da Lei nº 14.063/2020. E, por estarem assim justas e contratadas, declaram reconhecer expressamente a validade, integridade, autenticidade e eficácia jurídica do presente documento, bem como sua força executiva, o qual constituirá um único arquivo digital original para todos os fins de direito, dispensando-se a emissão ou assinatura de vias físicas.', style: 'clause', margin: [0, 0, 0, 80] },
-          
-          // Colunas do Associado e do Responsável Legal
+          { text: 'CLÁUSULA 13ª - ASSINATURA ELETRÔNICA: As Partes concordam que este instrumento será assinado de forma eletrônica (portal gov.br), nos termos do art. 10, § 2º, da MP nº 2.200-2/2001 e Lei nº 14.063/2020. Constituirá um único arquivo digital original, dispensando-se assinatura física.', style: 'clause', margin: [0, 0, 0, 80] },
           {
             columns: [
               { 
@@ -53,14 +50,7 @@ window.DocumentosAEB.gerarContratoBase = function(dados) {
               }
             ]
           },
-          
-          // Linha da Associação centralizada embaixo
-          { 
-            text: '_____________________________________\nAssociação dos Estudantes de Batatais', 
-            style: 'assinatura', 
-            alignment: 'center', 
-            margin: [0, 80, 0, 0] 
-          }
+          { text: '_____________________________________\nAssociação dos Estudantes de Batatais', style: 'assinatura', margin: [0, 30, 0, 0] }
         ]
       }
     ],
