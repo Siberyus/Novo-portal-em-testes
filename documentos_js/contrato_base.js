@@ -33,7 +33,7 @@ window.DocumentosAEB.gerarContratoBase = function(dados) {
       { text: 'ACESSO AO ESTATUTO: https://www.aebatatais.com.br/transparencia/documentos/estatutos', link: 'https://www.aebatatais.com.br/transparencia/documentos/estatutos', color: '#267da8', decoration: 'underline', alignment: 'center', margin: [0, 10, 0, 5], fontSize: 10 },
       { qr: 'https://www.aebatatais.com.br/transparencia/documentos/estatutos', fit: 80, alignment: 'center', margin: [0, 0, 0, 15] },
 
-      {
+      
         {
         unbreakable: true,
         stack: [
