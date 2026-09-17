@@ -37,23 +37,30 @@ window.DocumentosAEB.gerarContratoBase = function(dados) {
         {
         unbreakable: true,
         stack: [
-          { text: 'Os dados informados nesta ficha serão tratados pela AEB para fins de gestão associativa e operação do transporte, podendo ser compartilhados com a transportadora e o Município, nos termos da cláusula de Proteção de Dados do Contrato-Base e da Lei 13.709/2018.', style: 'clause' },
+          // Texto final ou parágrafo de encerramento antes das assinaturas (ajuste a margem se necessário)
           { text: 'As Partes concordam que este instrumento será assinado de forma eletrônica, utilizando-se o portal gov.br (níveis Prata ou Ouro), nos termos do art. 10, § 2º, da Medida Provisória nº 2.200-2/2001 e da Lei nº 14.063/2020. E, por estarem assim justas e contratadas, declaram reconhecer expressamente a validade, integridade, autenticidade e eficácia jurídica do presente documento, bem como sua força executiva, o qual constituirá um único arquivo digital original para todos os fins de direito, dispensando-se a emissão ou assinatura de vias físicas.', style: 'clause', margin: [0, 0, 0, 80] },
+          
+          // Colunas do Associado e do Responsável Legal
           {
             columns: [
-              // Coluna do Associado (Sempre exibe o nome do estudante e o documento dele)
               { 
                 text: '_____________________________________\nAssociado(a)\n\nNOME: ' + dados.nome + '\nRG/CIN: ' + (dados.tipoDoc === 'cin' ? dados.cpf : dados.rg), 
                 style: 'assinatura' 
               },
-              // Coluna do Responsável (Exibe o nome e doc do responsável caso seja menor, ou fica limpo se for maior)
               { 
                 text: '_____________________________________\nPai ou Responsável\n\nNOME: ' + (!dados.isMaior ? dados.nomeResp : '') + '\nRG/CIN: ' + (!dados.isMaior ? dados.rgResp : ''), 
                 style: 'assinatura' 
               }
             ]
           },
-          { text: '_____________________________________\nAssociação dos Estudantes de Batatais', style: 'assinatura', margin: [0, 80, 0, 0] }
+          
+          // Linha da Associação centralizada embaixo
+          { 
+            text: '_____________________________________\nAssociação dos Estudantes de Batatais', 
+            style: 'assinatura', 
+            alignment: 'center', 
+            margin: [0, 80, 0, 0] 
+          }
         ]
       }
     ],
